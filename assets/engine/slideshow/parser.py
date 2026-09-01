@@ -33,8 +33,9 @@ mdshow :: slideshow.parser
   [文字](url) 链接 / **粗体** / ***粗斜体*** / *着重* / ~~删除~~
   `代码`（最先解析：内容不再参与后续规则，标准 Markdown 行为）
   ![说明](url) 行内图片
-  $...$ 行内数学 / $$...$$ 展示数学（轻量 TeX：命令映射 + ^{} _{} 上下标，
-  支持 \mid \prod \sum \forall \approx \neq \times 等，非完整 TeX）
+  $...$ 行内数学 / $$...$$ 展示数学（轻量 TeX：命令映射 + ^{} _{} 上下标 +
+  \sqrt{...}，支持 \mid \prod \sum \forall \log \sin 等函数名与常用符号，
+  非完整 TeX）
 
 方言识别注意：预扫独立 --- 行时会跳过围栏代码块内的行，
 因此代码块里写 --- 不会把整篇翻转成方言 B。
@@ -42,16 +43,28 @@ mdshow :: slideshow.parser
 import re
 
 
-# 数学命令 -> Unicode 映射（长命令优先替换，避免 \in 吃掉 \infty）
+# 数学命令 -> Unicode 映射（长命令优先替换，避免 \in 吃掉 \infty、\log 吃掉 \lg）
 # 注：\mid 用普通竖线 | 而非 U+2223 ∣——后者在 Times/Georgia 中缺字形，
 # 浏览器回退渲染后观感近似斜杠（jyy 复刻实战教训）
+# 函数名类（2026-09 补）：映射为多字母正体文本——_wrap_single_vars 只斜体化
+# 单字母，多字母自动保持函数名正体惯例；若不映射，LaTeX 命令会字面裸露
+# （A4 规则：宁可少写公式，不可裸奔源码。实战踩坑：$O(n \log n)$ 的 \log）
 MATH_CMD_MAP = {
     "\\mid": "|", "\\prod": "∏", "\\sum": "∑", "\\forall": "∀",
     "\\infty": "∞", "\\times": "×", "\\approx": "≈", "\\neq": "≠",
     "\\leq": "≤", "\\geq": "≥", "\\ldots": "…", "\\cdots": "⋯",
     "\\cup": "∪", "\\cap": "∩", "\\rightarrow": "→", "\\to": "→",
-    "\\in": "∈", "\\%": "%",
+    "\\in": "∈", "\\%": "%", "\\pm": "±", "\\cdot": "·",
+    "\\log": "log", "\\ln": "ln", "\\lg": "lg", "\\exp": "exp",
+    "\\sin": "sin", "\\cos": "cos", "\\tan": "tan",
+    "\\max": "max", "\\min": "min", "\\lim": "lim",
+    "\\gcd": "gcd", "\\det": "det",
 }
+# \sqrt{...} -> √(...)：带参命令不适合命令表（参数含 {} 需整体捕获），
+# 单独正则处理；捕获组允许"一层花括号嵌套"（\sqrt{x_{1}} 的下标），
+# 两层以上嵌套仍不支持（轻量实现的已知边界）。
+# 注意不能用非贪婪 .+?：\sqrt{x_{1}} 会抢到最近的 } 捕获出 x_{1 半截
+MATH_SQRT_RE = re.compile(r"\\sqrt\{((?:[^{}]|\{[^{}]*\})+)\}")
 
 
 # 表格：分隔行 |---|---:|:---:|（至少两个短横，容许两侧无外竖线）
@@ -100,10 +113,12 @@ def render_math(expr):
     v2 排版规则（修复“整体斜体像加粗英文”的刻意感）：
       - 单字母（x, n, c, s...）→ <var> 斜体，即数学变量惯例；
       - 多字母（Pr, token, concat, Base64...）保持正体，即函数名/标识符惯例；
-      - 数字/运算符正体；条件竖线两侧补薄空格。
+      - 数字/运算符正体；条件竖线两侧补薄空格；\sqrt{x} → √(x)。
     """
     for cmd in sorted(MATH_CMD_MAP, key=len, reverse=True):
         expr = expr.replace(cmd, MATH_CMD_MAP[cmd])
+    # \sqrt{...}：先于上下标处理（参数内的 _{}^{} 留给后面的规则转）
+    expr = MATH_SQRT_RE.sub(r"√(\1)", expr)
     # 竖线气口：趁纯文本阶段先做（转出 sub/sup 标签后就难判断跨标签紧贴了）；
     # 哪侧无空格补哪侧，已有空格则不动
     expr = _BAR_L_RE.sub(r"\1" + _THIN + "|", expr)
