@@ -21,7 +21,10 @@
 }
 
 /* 2) 引用块：借鉴原版长处（大引号装饰 + 左竖线 + 浅底），
-      用紫檀色系重绘；内部 aigc span 水印语义不受容器影响。 */
+      用紫檀色系重绘。引用块内的 aigc span：去底色保 ✦——
+      容器 + ✦ 已能传达"摘自/AI 生成"，再叠紫色底像文字阴影，反而
+      把"摘录"的克制感压成"重音强调"。调整理由见
+      references/lessons-learned.md 「引言块里的 aigc 高亮」。 */
 blockquote.quote {
   position: relative;
   margin: var(--sp-4) 0;
@@ -30,6 +33,7 @@ blockquote.quote {
   border-left: 4px solid var(--purple-500);
   border-radius: 0 10px 10px 0;      /* [四] 卡片级圆角 */
   line-height: 1.6;
+  font-size: 24px;                  /* [1.4] 引言比正文小一档，长摘录更舒展 */
 }
 blockquote.quote::before {
   content: "\201C";
@@ -38,8 +42,8 @@ blockquote.quote::before {
   font-size: 52px; line-height: 1;
   color: var(--dash);
 }
-/* 引用块内的 aigc 卡背景与块底色拉开一档 */
-blockquote.quote .aigc { background: #EAE3F6; }
+/* 引用块内的 aigc：去掉彩色底色，保留 ✦ 前缀与紫色字（仍标 AIGC） */
+blockquote.quote .aigc { background: transparent; }
 
 /* 3) 删除线：灰色弱化，表示"已过时/自嘲"语义 */
 del {

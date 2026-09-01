@@ -302,6 +302,18 @@ span.ph {
 }
 .math-display var { font-style: italic; padding-right: .03em; }
 
+/* ---------- 引用块 [3.7]（v2 最小基线：缩字号 + 抑 aigc 高亮） ----------
+   容器装饰（浅底 / 左竖线 / 大引号）由各主题按需 override；
+   基线只保证：a) 引言字号比正文小一档；b) 块内 aigc 不再叠紫底。
+   背景/边框省略，保留到 nju-replica / 紫檀·南大复刻等具体主题覆盖。 */
+blockquote.quote {
+  font-size: 24px;                  /* [1.4] 引言比正文 28px 小一档 */
+  line-height: 1.6;
+  margin: var(--sp-3) 0;
+}
+/* 引用块内的 aigc：去掉彩色底色，保留 ✦ 与紫色字（容器已暗示摘录） */
+blockquote.quote .aigc { background: transparent; }
+
 /* ---------- 封面 / 封底（方言 A 备用）[1.4] 封面主标题 72～96 → 76px ---------- */
 .slide.cover {
   background: linear-gradient(135deg, #443B70 0%, #6B60A5 55%, #9488C8 100%);

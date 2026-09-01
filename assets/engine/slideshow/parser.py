@@ -401,10 +401,15 @@ def parse(md_text):
             continue
 
         # ---- 展示数学（独立一行 $$...$$） ----
+        # 坑（2026-09）：这里曾写 parse_inline(m.group(1))，而 m.group(1) 已
+        # 剥掉 $$ 定界符，parse_inline 里的 MATH_DISP_RE / MATH_INLINE_RE 都
+        # 匹配不到，结果整行 LaTeX 源码原样印在幻灯片上（dialect-test 第 8 页
+        # “P(x_{1:n} \mid c) = \prod...”裸奔）。
+        # 展示数学块必须直接走 render_math（先 esc 再渲染，与行内数学一致）。
         m = re.fullmatch(r"\$\$(.+)\$\$", s)
         if m:
             b = Block("mathd")
-            b.text = parse_inline(m.group(1))
+            b.text = render_math(esc(m.group(1).strip()))
             cur.blocks.append(b)
             prev_is_para = False
             continue

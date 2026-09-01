@@ -88,7 +88,8 @@ v1 是忠实复刻主题，不建议换色；v2–v5 均为全变量化设计，
 
 - 构建是纯 Python 标准库，零第三方依赖；`--dry-run` 只解析检查不写文件。
 - 交付前建议用 Playwright（或手动）过一遍：7 类检查 = 无溢出 / 字号达标 / 对比度 ≥ 4.5:1 / 避头尾 / reduced-motion / 打印样式 / 交互冒烟。逐项操作细节见 engine-internals.md 第四章。
-- 已知陷阱速记：inline-block 基线会拖歪列表符（`.aigc` 用 `display:inline`）、CSS 计数器对隐藏页失效（节号由引擎注入 `data-sec`）、hash 导航格式是 `#/3` 且需 reload。
+- 已知陷阱速记：inline-block 基线会拖歪列表符（`.aigc` 用 `display:inline`）、CSS 计数器对隐藏页失效（节号由引擎注入 `data-sec`）、hash 导航格式是 `#/3` 且需 reload、`$$...$$` 展示数学不可借道 parse_inline（详见 engine-internals.md §5.8，2026-09 翻车案例）。
+- 引用块里的 AIGC 标记按语境降级：容器已暗示"摘录/引用"时，块内 aigc 底色变透明、保留 `✦` 与紫字，避免双重视觉重音（详见 design-system.md §1.5）。
 
 ## 文件地图（按需读取，勿一次全读）
 
