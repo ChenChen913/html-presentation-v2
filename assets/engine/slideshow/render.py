@@ -39,37 +39,73 @@ def render_cover(slide):
     return "".join(parts)
 
 
-def render_ul(items):
-    """列表 -> HTML（两级嵌套；AIGC 卡渲染为 <span class="aigc">）"""
-    out = ["<ul>"]
+def render_list(items, ordered=False, start=1):
+    """列表 -> HTML（两级嵌套；AIGC 卡渲染为 <span class="aigc">；
+    任务项渲染为 class task / task-done，符号由主题 ::before 绘制）"""
+    tag = "ol" if ordered else "ul"
+    attrs = f' start="{start}"' if ordered and start != 1 else ""
+    out = [f"<{tag}{attrs}>"]
     open_nested = False
     for it in items:
         if it["depth"] == 0:
             if open_nested:                 # 顶层项打断了嵌套层
-                out.append("</ul></li>")
+                out.append(f"</{tag}></li>")
                 open_nested = False
             frag = " fragment" if it["frag"] else ""
+            extra = _task_cls(it)
+            cls = (frag.strip() + (" " + extra if extra else "")).strip()
+            attr = f' class="{cls}"' if cls else ""
             if it["callout"]:
                 out.append(
                     f'<li class="callout-item{frag}">'
                     f'<span class="aigc">{it["text"]}</span>'
                 )
             else:
-                cls = f' class="{frag.strip()}"' if frag else ""
-                out.append(f"<li{cls}>{it['text']}")
+                out.append(f"<li{attr}>{it['text']}")
         else:
             if not open_nested:
-                out.append("<ul>")
+                out.append(f"<{tag}>")
                 open_nested = True
             if it["callout"]:
                 out.append(
                     f'<li class="callout-item"><span class="aigc">{it["text"]}</span></li>'
                 )
             else:
-                out.append(f"<li>{it['text']}</li>")
+                extra = _task_cls(it)
+                attr = f' class="{extra}"' if extra else ""
+                out.append(f"<li{attr}>{it['text']}</li>")
     if open_nested:
-        out.append("</ul></li>")
-    out.append("</ul>")
+        out.append(f"</{tag}></li>")
+    out.append(f"</{tag}>")
+    return "".join(out)
+
+
+def _task_cls(it):
+    """任务项 -> class 片段：False=未完成 [ ]，True=已完成 [x]"""
+    t = it.get("task")
+    if t is False:
+        return "task"
+    if t is True:
+        return "task task-done"
+    return ""
+
+
+def render_table(b):
+    """表格 -> HTML（对齐 class 由主题控制；单元格走行内语法）"""
+    def acl(i):
+        a = b.aligns[i] if i < len(b.aligns) else "l"
+        return "col-c" if a == "c" else "col-r" if a == "r" else ""
+
+    out = ['<table class="tbl"><thead><tr>']
+    for i, c in enumerate(b.header):
+        out.append(f'<th class="{acl(i)}">{parse_inline(c)}</th>')
+    out.append("</tr></thead><tbody>")
+    for row in b.rows:
+        out.append("<tr>")
+        for i, c in enumerate(row):
+            out.append(f'<td class="{acl(i)}">{parse_inline(c)}</td>')
+        out.append("</tr>")
+    out.append("</tbody></table>")
     return "".join(out)
 
 
@@ -94,11 +130,21 @@ def render_content(slide, sec_no=0):
         elif b.kind == "mathd":
             body.append(f'<div class="math-display">{b.text}</div>')
         elif b.kind == "quote":
-            body.append(
-                f'<p class="callout fragment"><span class="aigc">{b.text}</span></p>'
-            )
+            # 引用块（容器语义）：大引号 + 左竖线由主题 .quote 样式绘制；
+            # 内部的 aigc span 已在解析时透传，水印语义不受容器影响。
+            body.append(f'<blockquote class="quote">{b.text}</blockquote>')
         elif b.kind == "ul":
-            body.append(render_ul(b.items))
+            body.append(render_list(b.items))
+        elif b.kind == "ol":
+            body.append(render_list(b.items, ordered=True, start=b.start))
+        elif b.kind == "table":
+            body.append(render_table(b))
+        elif b.kind == "code":
+            lang = f' data-lang="{b.lang}"' if b.lang else ""
+            body.append(f'<pre class="codeblock"{lang}><code>{b.text}</code></pre>')
+        elif b.kind == "img":
+            body.append(
+                f'<figure class="figure"><img src="{b.src}" alt="{b.alt}"></figure>')
     parts.append('<div class="slide-body">' + "".join(body) + "</div>")
     return "".join(parts)
 

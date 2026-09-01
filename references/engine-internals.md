@@ -101,3 +101,20 @@ recipe 行首是 8 个空格时 make 报 "missing separator"。生成 Makefile �
   处置顺序：先在规范区间内收紧行高/间距（行高 1.5 下限、列表 gap 8px、
   安全边距 4%），仍超限再拆页（共拆 3 页：tu12、tu13、tu22 各拆为两页）。
   拆页标注「（续）」并在小节层级切分，内容一字未删。
+
+## 六、第三轮修订：标准 Markdown 补全（2026-09）
+
+全格式测试稿（examples/dialect-test/）暴露的缺口一次补齐，parser/render 各动一层：
+
+- **新增块级五件套**：表格（lookahead 分隔行触发 + in_table 状态收集，单元格在渲染层
+  走 parse_inline）、有序列表（`OL_ITEM_RE`，start 取首项号，遇非列表行才断开）、
+  围栏代码块（状态机最优先，内容原样转义冻结）、任务列表（`- [ ]/[x]` → li.task）、
+  真实图片（整行 → figure 居中图版，行内 → img.inline-img）。
+- **方言预扫修正**：独立 `---` 判定跳过围栏代码块内的行，代码示例里写 --- 不再误翻方言 B。
+- **行内顺序修正**（标准 Markdown 化）：行内代码最先暂存（内容冻结，`**x**` 可原样展示）
+  → 行内图片 → 链接（图片必须排在链接前，否则感叹号被吃）→ 粗斜体 → 粗体 → 着重 →
+  删除 → 数学 → 占位符 → 还原代码。
+- **测试防线**：scripts/test_dialect_full.py 35 项引擎级断言 +
+  scripts/verify_dialect.py 25 项 Playwright 断言（含逐页溢出、表格对齐、
+  marker 颜色、::before 任务符号、图片加载与限高）；五主题全部补齐新元素样式
+  （v2 完整版，v1/v3/v4/v5 基础款；v4/v5 线条式列表需显式关闭 ol li::before）。

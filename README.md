@@ -37,7 +37,9 @@
 |---|---|
 | 讲稿即代码 | Markdown 是唯一事实源，幻灯片可重新生成；改样式不动内容，改内容不动样式 |
 | 双方言自动识别 | 人类讲稿（`##` 分页）与 make-slides 产物（`---` 分页）混合写也能正确解析，零配置 |
-| 单文件交付 | 产物一个 HTML（15–27 KB），可进 Git、可邮件发送、可离线放映 |
+| 单文件交付 | 产物一个 HTML（15–52 KB），可进 Git、可邮件发送、可离线放映 |
+| 标准 Markdown 全格式 | 表格（三档对齐）/ 有序列表 / 围栏代码块（语言徽标）/ 任务列表（☐/☑）/ 真实图片 / 粗斜体，全套可放映验证稿见 [`examples/dialect-test/`](examples/dialect-test/) |
+| 数学排版 | 轻量 TeX：命令映射 + 上下标 + 词性分明（变量斜体/函数名正体）+ 公式不断行策略 |
 | 完整放映交互 | `←/→` 翻页 · 空格分步 · `O` 总览网格 · `F` 全屏 · 点击/触屏滑动 · `#/n` 直达某页 |
 | AIGC 水印 | `<span class="aigc">` 包裹 AI 扩写内容，主题渲染 ✦ 水印底色，如实告知听众 |
 | 打印即 PDF | `@page` 已按 1280×720 预置分页，浏览器打印对话框直接导出讲义 |
@@ -61,7 +63,18 @@ python3 assets/engine/buildall my-lecture.md -o slides.html \
 
 构建完成，`slides.html` 双击即可放映。键位：`←/→` 翻页 · `空格` 下一步（分步动画）· `O` 总览 · `F` 全屏 · 点击右半屏翻页。导出 PDF：浏览器打印（页面尺寸已预置）。
 
-> 想先看效果？直接打开 [`assets/showcase/`](assets/showcase/) 里五个构建好的成品 HTML 双击放映。
+> 想先看效果？直接打开 [`assets/showcase/`](assets/showcase/) 里五个构建好的成品 HTML 双击放映；想速览引擎支持的全部格式，打开 [`examples/dialect-test/dialect-test.html`](examples/dialect-test/dialect-test.html)。
+
+## 示例实战
+
+仓库 [`examples/`](examples/) 收录两类可放映实例：
+
+| 示例 | 内容 | 看点 |
+|---|---|---|
+| [`examples/dialect-test/`](examples/dialect-test/) | **Markdown 全格式测试稿**（13 页） | 一份稿子测尽所有语法：表格对齐、代码块徽标、任务列表、数学排版、占位卡……兼作回归测试，新增语法先在这里验证 |
+| [`examples/nanda-gense/`](examples/nanda-gense/) | 《生成式软件工程》开场白复刻（27 页 / 125 分步） | 真实高密度课件实战：引用块嵌水印、词性分明数学、长公式不断行、高密度拆页策略 |
+
+两份示例均附源稿 + 合成主题 + 构建命令，可一键重建。
 
 ## 五套主题
 
@@ -112,7 +125,9 @@ python3 assets/engine/buildall my-lecture.md -o slides.html \
 | 封面 | 文档第一个 `# 一级标题` | 第一页即封面 |
 | 渐进显示 | 列表项 = 分步元素 | 同左（逐项出现） |
 
-行内语法：`**粗体**` · `*着重*`（渲染为着重号，不用伪斜体）· `` `行内码` `` · `[链接](url)` · `<span class="aigc">AI 扩写内容</span>`（AIGC 水印）· `[[图片说明]]`（虚线占位卡）
+行内语法：`**粗体**` · `***粗斜体***` · `*着重*`（渲染为着重号，不用伪斜体）· `` `行内码` ``（内容冻结，可原样展示写法）· `~~删除线~~` · `[链接](url)` · `![图片](src)`（行内小图；整行则居中图版）· `$数学$` · `<span class="aigc">AI 扩写内容</span>`（AIGC 水印）· `[[图片说明]]`（虚线占位卡）
+
+块级语法：`1. 有序列表`（start 取首项号）· `- [ ] / - [x]` 任务列表 · `| 表格 |`（下一行 `|---|:---:|` 分隔，三档对齐）· ` ```lang ` 围栏代码块（右上角语言徽标）
 
 完整语法表 → [`references/dialect-syntax.md`](references/dialect-syntax.md)；写稿规范（每页 ≤8 要点、AIGC 使用边界等）→ [`SKILL.md`](SKILL.md) 与 [`references/content-workflow.md`](references/content-workflow.md)。
 
@@ -130,6 +145,7 @@ git clone https://github.com/ChenChen913/html-presentation-v2.git .agents/skills
 - `SKILL.md` —— 主流程：选主题、换色系、写稿规则、构建命令（约百行，刻意精简）
 - `references/` —— 语法全表 / 内容生成工作流 / 设计系统 / 高校色值 / 引擎陷阱手册 / 实战踩坑录 / 五主题模板
 - `assets/` —— 放映引擎 / 五色系片段 / 示例讲稿 / 五个成品 showcase
+- `examples/` —— 全格式测试稿（活语法表）与 27 页真实课件复刻实战
 
 ## 目录结构
 
@@ -147,11 +163,14 @@ html-presentation-v2/
 │   ├── engine-internals.md         #   引擎机制 / 验证清单 / 已知陷阱
 │   ├── lessons-learned.md          #   ★ 实战踩坑录（长稿/高密度稿必读）
 │   └── themes/                     # ★ 五套主题模板 CSS
-└── assets/
-    ├── engine/                     # ★ 放映引擎（纯 Python + runtime.js）
-    ├── palettes/                   # ★ 五色系变量覆盖片段
-    ├── demo/                       #   示例讲稿
-    └── showcase/                   # ★ 五主题成品预览（HTML + 截图）
+├── assets/
+│   ├── engine/                     # ★ 放映引擎（纯 Python + runtime.js）
+│   ├── palettes/                   # ★ 五色系变量覆盖片段
+│   ├── demo/                       #   示例讲稿（含 dialect-test.md 全格式测试稿）
+│   └── showcase/                   # ★ 五主题成品预览（HTML + 截图）
+└── examples/
+    ├── dialect-test/               # ★ 全格式测试稿（活语法表 + 回归测试）
+    └── nanda-gense/                # ★ 27 页真实课件复刻（高密度实战）
 ```
 
 ## 🙏 致谢

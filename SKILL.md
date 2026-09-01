@@ -38,10 +38,12 @@ python3 engine/buildall 讲稿.md -o slides.html --theme <skill>/references/them
 | 封面 | 文档第一个 `# 一级标题` | 第一页即封面 |
 | 渐进显示 | 列表项 = 分步元素 | 同左（`*`/`-` 逐项出现） |
 
-行内语法：`**粗体**`、`*着重*`（主题渲染为着重号，不用伪斜体）、`` `行内码` ``、`~~删除线~~`、
-`[链接](url)`、`$数学$`（命令映射 + 上下标 + 词性分明排版：单字母变量斜体、函数名正体，见 dialect-syntax.md）、
+行内语法：`**粗体**`、`***粗斜体***`、`*着重*`（主题渲染为着重号，不用伪斜体）、`` `行内码` ``（内容冻结，可原样展示写法）、`~~删除线~~`、
+`[链接](url)`、`![图片](src)`（行内小图；整行则居中图版）、`$数学$`（命令映射 + 上下标 + 词性分明排版：单字母变量斜体、函数名正体，见 dialect-syntax.md）、
 `<span class="aigc">AI 扩写内容</span>`（AIGC 水印）、`[[图片说明]]`（渲染为虚线占位卡，提醒补图）。
 `> 文本` 是**引用块**容器（可含 aigc span），本身不带水印——与列表内 `- > ` 水印卡语义不同。
+块级补充：```` ```lang ```` 围栏代码块（语言徽标）、`| 表格 |`（下一行 `|---|:---:|` 分隔，三档对齐）、
+`1. 有序列表`（start 取首项号）、`- [ ] / - [x]` 任务列表（☐/☑）；全套可放映验证稿见仓库 examples/dialect-test/。
 
 ## 五主题 × 五色系（决策树）
 
@@ -108,6 +110,7 @@ mdshow-slides/
     │   ├── buildall                #   构建入口
     │   └── slideshow/              #   parser / render / runtime.js
     ├── palettes/                   # ★ 五色系变量覆盖片段（紫/绿/红/蓝/黑）
-    ├── demo/                       # 示例讲稿（everything-code-jyy.md，方言 B 全语法）
+    ├── demo/                       # 示例讲稿（everything-code-jyy.md 方言 B 全语法；dialect-test.md 全格式测试稿）
+    │                               # （dialect-test 的可放映成品与截图在仓库 examples/dialect-test/）
     └── showcase/                   # ★ 五主题成品预览（HTML + 截图，选型时目测参考）
 ```

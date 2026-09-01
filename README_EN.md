@@ -37,7 +37,9 @@ It is also an **AI Agent Skill**: the repository itself follows the standard thr
 |---|---|
 | Notes as code | Markdown is the single source of truth; regenerate slides anytime; style and content evolve independently |
 | Two dialects, auto-detected | Human-written notes (`##` per slide) and make-slides output (`---` separators) parse correctly out of the box |
-| Single-file delivery | One HTML file (15–27 KB) — Git-friendly, emailable, offline-presentable |
+| Single-file delivery | One HTML file (15–52 KB) — Git-friendly, emailable, offline-presentable |
+| Full standard Markdown | Tables (3-way alignment) / ordered lists / fenced code blocks (language badge) / task lists (☐/☑) / real images / bold-italic — see the presentable test deck in [`examples/dialect-test/`](examples/dialect-test/) |
+| Math typesetting | Lightweight TeX: command mapping + sub/superscripts + part-of-speech styling (italic variables, upright identifiers) + never-break-a-formula policy |
 | Full presenting UX | `←/→` navigate · Space for fragments · `O` overview grid · `F` fullscreen · click/swipe · `#/n` deep link |
 | AIGC watermark | Wrap AI-expanded text in `<span class="aigc">`; themes render a ✦ watermark tint so the audience always knows |
 | Print = PDF | `@page` is pre-configured for 1280×720; export handouts straight from the browser print dialog |
@@ -61,7 +63,18 @@ python3 assets/engine/buildall my-lecture.md -o slides.html \
 
 When the build finishes, double-click `slides.html` to present. Keys: `←/→` navigate · `Space` next fragment · `O` overview · `F` fullscreen · click right half to advance. Export PDF via the browser print dialog (page size is pre-configured).
 
-> Want to see the result first? Open any of the five ready-made decks in [`assets/showcase/`](assets/showcase/) — double-click to present.
+> Want to see the result first? Open any of the five ready-made decks in [`assets/showcase/`](assets/showcase/) — double-click to present. For a quick tour of every supported format, open [`examples/dialect-test/dialect-test.html`](examples/dialect-test/dialect-test.html).
+
+## Worked Examples
+
+The [`examples/`](examples/) directory ships two presentable decks:
+
+| Example | What it is | Highlights |
+|---|---|---|
+| [`examples/dialect-test/`](examples/dialect-test/) | **Full-format Markdown test deck** (13 slides) | One deck exercising every supported feature: table alignment, code badges, task lists, math typesetting, placeholders… doubles as the regression suite for new syntax |
+| [`examples/nanda-gense/`](examples/nanda-gense/) | Replica of a *Generative SE* lecture opening (27 slides / 125 fragments) | Real high-density courseware: quotes with inline watermarks, part-of-speech math, never-breaking long formulas, density-driven slide splitting |
+
+Both examples include source notes + composed theme + build commands for one-command rebuilds.
 
 ## Five Themes
 
@@ -112,7 +125,9 @@ Two dialects are auto-detected, zero configuration:
 | Cover | First `# H1` in the document | First slide is the cover |
 | Fragments | List items appear step by step | Same (item-by-item reveal) |
 
-Inline syntax: `**bold**` · `*emphasis*` (rendered as emphasis dots, never fake italics) · `` `code` `` · `[link](url)` · `<span class="aigc">AI-expanded text</span>` (AIGC watermark) · `[[image caption]]` (dashed placeholder)
+Inline syntax: `**bold**` · `***bold-italic***` · `*emphasis*` (rendered as emphasis dots, never fake italics) · `` `code` `` (content frozen — safe for showing literal syntax) · `~~strikethrough~~` · `[link](url)` · `![image](src)` (inline thumbnail; alone on its own line it becomes a centered figure) · `$math$` · `<span class="aigc">AI-expanded text</span>` (AIGC watermark) · `[[image caption]]` (dashed placeholder)
+
+Block syntax: `1. ordered list` (start taken from the first item) · `- [ ] / - [x]` task list · `| table |` (separator row `|---|:---:|`, 3-way alignment) · ` ```lang ` fenced code block (language badge)
 
 Full syntax table → [`references/dialect-syntax.md`](references/dialect-syntax.md); authoring rules (≤8 bullets per slide, AIGC boundaries, etc.) → [`SKILL.md`](SKILL.md) and [`references/content-workflow.md`](references/content-workflow.md).
 
@@ -130,6 +145,7 @@ Then just tell your agent: "**use mdshow-slides to turn this lecture into slides
 - `SKILL.md` — main flow: pick a theme, recolor, authoring rules, build commands (~100 lines, deliberately lean)
 - `references/` — full syntax / content workflow / design system / university colors / engine pitfalls / field notes / five theme templates
 - `assets/` — presentation engine / palette snippets / demo lectures / five showcase decks
+- `examples/` — full-format test deck (living syntax reference) and the 27-slide real-courseware replica
 
 ## Repository Layout
 
@@ -147,11 +163,14 @@ html-presentation-v2/
 │   ├── engine-internals.md         #   engine internals / verification checklist / known pitfalls
 │   ├── lessons-learned.md         #   field notes from real builds (must-read for long decks)
 │   └── themes/                     # ★ five theme template CSS files
-└── assets/
-    ├── engine/                     # ★ presentation engine (pure Python + runtime.js)
-    ├── palettes/                   # ★ five color-system override snippets
-    ├── demo/                       #   demo lectures
-    └── showcase/                   # ★ five ready-made decks (HTML + screenshots)
+├── assets/
+│   ├── engine/                     # ★ presentation engine (pure Python + runtime.js)
+│   ├── palettes/                   # ★ five color-system override snippets
+│   ├── demo/                       #   demo lectures (incl. dialect-test.md full-format deck)
+│   └── showcase/                   # ★ five ready-made decks (HTML + screenshots)
+└── examples/
+    ├── dialect-test/               # ★ full-format test deck (living syntax reference + regression)
+    └── nanda-gense/                # ★ 27-slide real-courseware replica (high-density practice)
 ```
 
 ## 🙏 Acknowledgments

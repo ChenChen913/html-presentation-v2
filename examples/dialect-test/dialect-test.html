@@ -1,3 +1,11 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="mdshow">
+<title>Markdown 全格式测试 · mdshow</title>
+<style>
 /* ============================================================
    mdshow theme v2 —— 「规范版 · 紫檀」
    依据《中文 PPT 与网页设计调研笔记》对 v1（复刻版）的规范化改造。
@@ -378,3 +386,260 @@ body.overview { background: #1B1A20; }
   .slide { animation: none !important; }   /* 打印快照不catch入场中态 */
   .helpbar { display: none; }
 }
+
+</style>
+</head>
+<body>
+<div class="viewport" id="viewport">
+  <div class="stage" id="stage">
+  <section class="slide cover" data-i="1">
+    <h1>Markdown 全格式测试</h1><p class="cover-sub">mdshow 引擎语法覆盖验证稿 · 一份稿子测尽所有格式</p>
+    <div class="pageno">1/13</div>
+  </section>
+  <section class="slide content" data-i="2">
+    <header class="slide-header"><h2 data-sec="2">标题与段落</h2></header><div class="slide-body"><h3>三级小节句</h3><p>这是普通段落，验证默认字号、行高与中文避头尾。紧邻的物理行会合并为同一段落（中文直排，不断句）。</p><ul><li class="fragment"><b>粗体</b>：强调关键词<li class="fragment"><i>着重号</i>：中文语境代替斜体<li class="fragment"><del>删除线</del>：弱化或订正的表述<li class="fragment"><code>行内代码</code>：标记术语与文件名<li class="fragment"><b><i>粗斜体</i></b>：粗体与着重号叠加（新增）<li><a href="https://github.com/ChenChen913/html-presentation-v2">超链接</a>：外链样式</ul></div>
+    <div class="pageno">2/13</div>
+  </section>
+  <section class="slide content" data-i="3">
+    <header class="slide-header"><h2 data-sec="3">无序列表与嵌套</h2></header><div class="slide-body"><ul><li class="fragment">顶层列表项，默认分步显示<ul><li>嵌套子项随父项一同出现</li><li>第二个嵌套子项，验证缩进层级</li></ul></li><li class="fragment">行尾写 {nf} 可关闭分步<li class="callout-item fragment"><span class="aigc">列表内 AIGC 水印卡（✦ 前缀）</span><li>同级列表项间距一致，嵌套层缩进递进</ul></div>
+    <div class="pageno">3/13</div>
+  </section>
+  <section class="slide content" data-i="4">
+    <header class="slide-header"><h2 data-sec="4">有序列表（新增支持）</h2></header><div class="slide-body"><ol><li class="fragment">第一步：解析 Markdown 源稿为幻灯片模型<li class="fragment">第二步：模型渲染为 HTML 结构<li class="fragment">第三步：内联主题 CSS 与放映 JS，产出单文件</ol><p>有序列表与无序列表分步规则一致；下面隔一个段落再起新表，起始号直接取自首项：</p><ol start="9"><li class="fragment">从九号起算的列表（渲染为 start=9）<li class="fragment">后续项自动顺延，不依赖书写数字</ol></div>
+    <div class="pageno">4/13</div>
+  </section>
+  <section class="slide content" data-i="5">
+    <header class="slide-header"><h2 data-sec="5">表格（新增支持）</h2></header><div class="slide-body"><table class="tbl"><thead><tr><th class="">行内语法</th><th class="">书写示例</th><th class="col-c">渲染效果</th><th class="col-r">备注</th></tr></thead><tbody><tr><td class="">粗体</td><td class="">星号包裹</td><td class="col-c"><b>重点词</b></td><td class="col-r">常用</td></tr><tr><td class="">着重号</td><td class="">星号单包</td><td class="col-c"><i>强调词</i></td><td class="col-r">中文规范</td></tr><tr><td class="">删除线</td><td class="">双波浪</td><td class="col-c"><del>作废项</del></td><td class="col-r">订正</td></tr><tr><td class="">链接</td><td class="">方括号</td><td class="col-c"><a href="https://example.com">示例</a></td><td class="col-r">外链</td></tr><tr><td class="">数学</td><td class="">美元符</td><td class="col-c"><span class="math"><var>E</var>=mc<sup>2</sup></span></td><td class="col-r">行内公式</td></tr></tbody></table><p>表头深字、斑马纹、四档对齐（左/默认/居中/右）全部生效。</p></div>
+    <div class="pageno">5/13</div>
+  </section>
+  <section class="slide content" data-i="6">
+    <header class="slide-header"><h2 data-sec="6">代码块（新增支持）</h2></header><div class="slide-body"><pre class="codeblock" data-lang="python"><code>def fib(n):
+    a, b = 0, 1
+    while a &lt; n:
+        print(a, end=" ")
+        a, b = b, a + b
+fib(100)  # 0 1 1 2 3 5 8 13 21 34 55 89</code></pre><p>围栏代码块：等宽字体、深底浅字、右上角语言徽标；代码内容原样转义，不做行内解析（标记符号与美元符都安全）。</p></div>
+    <div class="pageno">6/13</div>
+  </section>
+  <section class="slide content" data-i="7">
+    <header class="slide-header"><h2 data-sec="7">任务列表（新增支持）</h2></header><div class="slide-body"><ul><li class="fragment task task-done">已完成：表格语法与四档对齐<li class="fragment task task-done">已完成：围栏代码块与语言徽标<li class="fragment task">进行中：新元素样式逐项目检<li class="fragment task">待办：示例收编入仓库<li class="fragment">普通列表项可与任务项混排</ul></div>
+    <div class="pageno">7/13</div>
+  </section>
+  <section class="slide content" data-i="8">
+    <header class="slide-header"><h2 data-sec="8">数学全家桶</h2></header><div class="slide-body"><p>行内公式：质能方程 <span class="math"><var>E</var>=mc<sup>2</sup></span>，复杂度 <span class="math">O(<var>n</var> \log <var>n</var>)</span>，条件概率 <span class="math"><var>P</var>(<var>x</var> | <var>y</var>)</span>。</p><div class="math-display">P(x_{1:n} \mid c) = \prod_{i=1}^{n} P(x_i \mid c, x_{1:i-1})</div><p>展示公式独立成行居中；词性分明排版：单字母变量斜体、函数名与多字母标识符正体、大 O 记号保持正体、条件竖线自动留气口。</p></div>
+    <div class="pageno">8/13</div>
+  </section>
+  <section class="slide content" data-i="9">
+    <header class="slide-header"><h2 data-sec="9">引用块与水印</h2></header><div class="slide-body"><blockquote class="quote">引用块是容器：大引号加左竖线，适合摘录原话与需求。<span class="aigc">内部嵌 AIGC 水印，容器与标记正交。</span></blockquote><p>引用块不计入分步，翻页即整块出现。</p></div>
+    <div class="pageno">9/13</div>
+  </section>
+  <section class="slide content" data-i="10">
+    <header class="slide-header"><h2 data-sec="10">真实图片（新增支持）</h2></header><div class="slide-body"><figure class="figure"><img src="assets/sample-figure.png" alt="示例插图"></figure><p>整行图片渲染为居中图版：限高防溢出、圆角加投影；支持本地相对路径与网络 URL。</p></div>
+    <div class="pageno">10/13</div>
+  </section>
+  <section class="slide content" data-i="11">
+    <header class="slide-header"><h2 data-sec="11">占位卡对比</h2></header><div class="slide-body"><div class="imgph"><span class="ph-ico"></span><span>一张架构图：讲稿到放映的流水线</span></div><p>整行双括号渲染为虚线占位卡，构建时控制台告警提醒补图；行内出现则收窄为小占位标记，如 <span class="ph">占位</span>。两者配合：写稿期用占位，定稿期换真实图片。</p></div>
+    <div class="pageno">11/13</div>
+  </section>
+  <section class="slide content" data-i="12">
+    <header class="slide-header"><h2 data-sec="12">方言与语法边界</h2></header><div class="slide-body"><ul><li class="fragment">本稿为方言 A（## 分页，人类讲稿）；方言 B（--- 分页）见 demo 讲稿<li class="fragment">独立三横线行会让整篇按方言 B 解析：慎用水平分隔线<li class="fragment">暂不支持：脚注、定义列表、块级 HTML、多行单元格<li class="fragment">单元格内竖线无法转义：含竖线内容请改用行内代码<li class="fragment">转义序列（反斜杠）未实现：数学式内写美元符需绕行</ul></div>
+    <div class="pageno">12/13</div>
+  </section>
+  <section class="slide content" data-i="13">
+    <header class="slide-header"><h2 data-sec="13">版本信息</h2></header><div class="slide-body"><ul><li class="fragment">验证稿 v1.0 · 2026-09<li class="fragment">mdshow 引擎：纯 Python 标准库，零依赖<li class="fragment">构建命令：buildall dialect-test.md -o dialect-test.html<li class="fragment">本页同时验证：页码、总览模式、打印导出与全稿收尾样式</ul></div>
+    <div class="pageno">13/13</div>
+  </section>
+  </div>
+</div>
+<div class="helpbar" id="helpbar">←/→ 翻页 · 空格 下一步 · O 总览 · F 全屏 · 点击左右半屏翻页</div>
+<script>
+/* ============================================================
+   mdshow :: runtime — 放映交互
+   键盘 ←/→/空格 翻页 + 右下角页码（构建时静态生成）
+   O 总览网格 / F 全屏 / Esc 退出
+   点击左右半屏翻页 + 触屏滑动
+   分步显示：列表项/金句卡按 fragment 逐条浮现
+   ============================================================ */
+(function () {
+  "use strict";
+
+  var stage = document.getElementById("stage");
+  var viewport = document.getElementById("viewport");
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var N = slides.length;
+  var frags = slides.map(function (s) {
+    return Array.prototype.slice.call(s.querySelectorAll(".fragment"));
+  });
+
+  var cur = 0;      // 当前页下标
+  var shown = 0;    // 当前页已显示的 fragment 数
+  var overview = false;
+
+  function apply() {
+    slides.forEach(function (s, i) {
+      s.classList.toggle("active", i === cur);
+      s.classList.toggle("current", i === cur);
+    });
+    frags[cur].forEach(function (f, i) {
+      f.classList.toggle("shown", i < shown);
+    });
+    fixMath();
+    try { history.replaceState(null, "", "#/" + (cur + 1)); } catch (e) { /* file:// 下可能受限 */ }
+  }
+
+  /* ---------- 数学防断行：行内公式 nowrap 整体不可分；
+             比整个版心还宽的，升格为独立一行居中（行间公式观感）。
+             用布局值 scrollWidth/clientWidth 测量（transform 缩放不影响布局值），
+             测量时临时转 inline-block 保证各浏览器取值一致 ---------- */
+  function fixMath() {
+    slides.forEach(function (slide) {
+      var body = slide.querySelector(".slide-body");
+      if (!body) { return; }
+      var avail = body.clientWidth - 24;   // 扣除可能的行内装饰余量
+      if (avail <= 0) { return; }          // 页未激活（display:none）时不测，防误判
+      var list = slide.querySelectorAll("span.math");
+      Array.prototype.forEach.call(list, function (el) {
+        el.classList.remove("math-block");
+        el.style.display = "inline-block";  // 测量态：scrollWidth 可靠
+        var w = el.scrollWidth;
+        el.style.display = "";
+        if (w > avail) { el.classList.add("math-block"); }
+      });
+    });
+  }
+  window.addEventListener("resize", function () { fixMath(); });
+
+  function next() {
+    if (shown < frags[cur].length) { shown++; apply(); }
+    else if (cur < N - 1) { cur++; shown = 0; apply(); }
+  }
+
+  function prev() {
+    if (shown > 0) { shown--; apply(); }
+    else if (cur > 0) { cur--; shown = frags[cur].length; apply(); }
+  }
+
+  function jump(i) {
+    cur = Math.max(0, Math.min(N - 1, i));
+    shown = frags[cur].length;   // 跳转落地时展示整页
+    apply();
+  }
+
+  /* ---------- 等比缩放 1280x720 -> 视口 ---------- */
+  function fit() {
+    if (overview) { layoutOverview(); return; }
+    var s = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    stage.style.transform = "scale(" + s + ")";
+  }
+  window.addEventListener("resize", fit);
+
+  /* ---------- 总览模式 ---------- */
+  function layoutOverview() {
+    var vw = window.innerWidth, vh = window.innerHeight;
+    var cols = Math.ceil(Math.sqrt(N));
+    var rows = Math.ceil(N / cols);
+    var cw = vw / cols, ch = vh / rows;
+    var s = Math.min(cw / 1280, ch / 720) * 0.86;
+    slides.forEach(function (el, i) {
+      var c = i % cols, r = Math.floor(i / cols);
+      var x = c * cw + (cw - 1280 * s) / 2;
+      var y = r * ch + (ch - 720 * s) / 2;
+      el.style.transform = "translate(" + x + "px," + y + "px) scale(" + s + ")";
+    });
+  }
+
+  function setOverview(on) {
+    overview = on;
+    document.body.classList.toggle("overview", on);
+    if (on) {
+      stage.style.transform = "none";
+      layoutOverview();
+    } else {
+      slides.forEach(function (el) { el.style.transform = ""; });
+      fit();
+    }
+  }
+
+  /* ---------- 全屏 ---------- */
+  function toggleFullscreen() {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen();
+    }
+  }
+
+  /* ---------- 键盘 ---------- */
+  document.addEventListener("keydown", function (e) {
+    var k = e.key;
+    if (k === "ArrowRight" || k === "ArrowDown" || k === " " || k === "PageDown" || k === "Enter") {
+      e.preventDefault();
+      if (overview) { setOverview(false); } else { next(); }
+    } else if (k === "ArrowLeft" || k === "ArrowUp" || k === "PageUp") {
+      e.preventDefault();
+      if (overview) { setOverview(false); } else { prev(); }
+    } else if (k === "Home") {
+      if (overview) { setOverview(false); }
+      cur = 0; shown = 0; apply();
+    } else if (k === "End") {
+      if (overview) { setOverview(false); }
+      jump(N - 1);
+    } else if (k === "o" || k === "O") {
+      setOverview(!overview);
+    } else if (k === "f" || k === "F") {
+      toggleFullscreen();
+    } else if (k === "Escape") {
+      if (overview) { setOverview(false); }
+    }
+  });
+
+  /* ---------- 点击左右半屏翻页 ---------- */
+  viewport.addEventListener("click", function (e) {
+    if (overview) { return; }                 // 总览由 slide 自己的点击处理
+    if (e.target.closest && e.target.closest("a")) { return; }   // 链接放行
+    var ratio = e.clientX / window.innerWidth;
+    if (ratio < 0.3) { prev(); } else { next(); }
+  });
+
+  /* ---------- 总览里点击某页跳转 ---------- */
+  slides.forEach(function (el, i) {
+    el.addEventListener("click", function (e) {
+      if (!overview) { return; }
+      e.stopPropagation();
+      setOverview(false);
+      jump(i);
+    });
+  });
+
+  /* ---------- 触屏滑动 ---------- */
+  var touchX = null, touchY = null;
+  document.addEventListener("touchstart", function (e) {
+    touchX = e.touches[0].clientX;
+    touchY = e.touches[0].clientY;
+  }, { passive: true });
+  document.addEventListener("touchend", function (e) {
+    if (touchX === null) { return; }
+    var dx = e.changedTouches[0].clientX - touchX;
+    var dy = e.changedTouches[0].clientY - touchY;
+    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < 0) { next(); } else { prev(); }
+    }
+    touchX = touchY = null;
+  }, { passive: true });
+
+  /* ---------- 初始化：支持 #/3 式页码定位 ---------- */
+  var m = (location.hash || "").match(/^#\/(\d+)/);
+  if (m) { cur = Math.max(0, Math.min(N - 1, parseInt(m[1], 10) - 1)); }
+  shown = frags[cur].length;
+  fit();
+  apply();
+
+  setTimeout(function () {
+    var h = document.getElementById("helpbar");
+    if (h) { h.classList.add("fade"); }
+  }, 4000);
+})();
+
+</script>
+</body>
+</html>

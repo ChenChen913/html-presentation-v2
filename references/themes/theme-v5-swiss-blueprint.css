@@ -198,6 +198,49 @@ code {
   font-family: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
 }
 
+/* ---------- 2026-09 全格式补全（基础款）：表格/有序/代码块/任务/图片 ----------
+   瑞士表格：直角墨线框；ol 关闭蓝短横改用克莱因蓝数字；全稿 0 圆角。 */
+.slide-body table {
+  border-collapse: collapse; width: 100%;
+  font-size: .85em; margin: var(--sp-4, 16px) 0; line-height: 1.5;
+  border: 1px solid var(--ink);
+}
+.slide-body th, .slide-body td {
+  border: 1px solid var(--hairline); padding: .38em .6em; text-align: inherit;
+}
+.slide-body th.col-c, .slide-body td.col-c { text-align: center; }
+.slide-body th.col-r, .slide-body td.col-r { text-align: right; }
+.slide-body thead th {
+  background: var(--ink); color: #fff; font-weight: 600;
+  border-color: var(--ink);
+}
+.slide-body ol { padding-left: 1.6em; margin-top: var(--sp-2, 8px); }
+.slide-body ol li { padding-left: 0; }              /* 清线条式的文本缩进 */
+.slide-body ol li::before { content: none; }        /* 关闭蓝短横，数字更清晰 */
+.slide-body ol li::marker { color: var(--blue); font-weight: 600; }
+pre.codeblock {
+  background: var(--code-bg); color: var(--code-fg);
+  border: 1px solid var(--hairline); border-radius: 0;
+  padding: var(--sp-3, 12px) var(--sp-5, 24px);
+  font-size: .72em; line-height: 1.6;
+  overflow-x: auto; max-width: 100%; margin: var(--sp-4, 16px) 0; position: relative;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+pre.codeblock code { background: none; border: none; padding: 0; color: inherit; font-size: inherit; }
+pre.codeblock[data-lang]::before {
+  content: attr(data-lang); position: absolute; top: 6px; right: 12px;
+  font-size: 12px; color: var(--blue);
+}
+.slide-body li.task::before {
+  content: "☐"; position: absolute; left: 0; top: .12em;
+  width: auto; height: auto; background: none;
+  color: var(--blue);
+}
+.slide-body li.task-done::before { content: "☑"; }
+figure.figure { margin: var(--sp-4, 16px) 0; text-align: center; }
+figure.figure img { max-width: 100%; max-height: 400px; border: 1px solid var(--ink); }
+img.inline-img { max-height: 1.5em; vertical-align: middle; }
+
 /* ---------- ✦ AIGC 水印卡：浅蓝底直角色（语义与 v1–v4 一致）
    display:inline（inline-block 基线语义会把 marker 拉到卡片第二行，v3 已证） */
 .aigc {

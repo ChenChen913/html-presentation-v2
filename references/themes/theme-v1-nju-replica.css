@@ -119,6 +119,41 @@ code {
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
 }
 
+/* ---------- 2026-09 全格式补全（基础款）：表格/有序/代码块/任务/图片 ---------- */
+.slide-body table {
+  border-collapse: collapse; width: 100%;
+  font-size: .85em; margin: 14px 0; line-height: 1.45;
+}
+.slide-body th, .slide-body td {
+  border: 1px solid #DDD7EE; padding: .4em .65em; text-align: inherit;
+}
+.slide-body th.col-c, .slide-body td.col-c { text-align: center; }
+.slide-body th.col-r, .slide-body td.col-r { text-align: right; }
+.slide-body thead th {
+  background: #EFEAF8; color: var(--ink-strong); font-weight: 600;
+  border-bottom: 2px solid var(--purple-500);
+}
+.slide-body tbody tr:nth-child(even) { background: #FAF9FD; }
+.slide-body ol { padding-left: 30px; margin-top: 9px; }
+.slide-body ol li::marker { color: var(--purple-600); font-weight: 600; }
+pre.codeblock {
+  background: #2E2A38; color: #E8E4F2; border-radius: 6px;
+  padding: 14px 20px; font-size: .68em; line-height: 1.6;
+  overflow-x: auto; max-width: 100%; margin: 14px 0; position: relative;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+pre.codeblock code { background: none; border: none; padding: 0; color: inherit; font-size: inherit; }
+pre.codeblock[data-lang]::before {
+  content: attr(data-lang); position: absolute; top: 7px; right: 12px;
+  font-size: 11px; color: #9C90CC;
+}
+li.task { list-style: none; margin-left: -26px; }
+li.task::before { content: "☐ "; color: var(--purple-600); }
+li.task-done::before { content: "☑ "; color: var(--purple-600); }
+figure.figure { margin: 14px 0; text-align: center; }
+figure.figure img { max-width: 100%; max-height: 400px; border-radius: 6px; box-shadow: 0 6px 24px rgba(62,54,99,.18); }
+img.inline-img { max-height: 1.5em; vertical-align: middle; }
+
 /* ---------- ✦ AIGC 水印卡 ----------
    tu07 揭示的真实语义：<span class="aigc"> = AI 生成内容标记。
    人写的文本是普通 bullet；Agent 新增的一切文本都包进 aigc span，

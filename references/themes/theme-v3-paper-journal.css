@@ -195,6 +195,45 @@ code {
   font-family: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
 }
 
+/* ---------- 2026-09 全格式补全（基础款）：表格/有序/代码块/任务/图片 ----------
+   表格按学刊三线表规范：顶底线 + 表头细线，无竖线；红序号；米底代码块。 */
+.slide-body table {
+  border-collapse: collapse; width: 100%;
+  font-size: .85em; margin: var(--sp-4, 16px) 0; line-height: 1.5;
+  border-top: 2px solid var(--ink-strong);
+  border-bottom: 2px solid var(--ink-strong);
+}
+.slide-body th, .slide-body td {
+  border: none; padding: .38em .5em; text-align: inherit;
+}
+.slide-body th.col-c, .slide-body td.col-c { text-align: center; }
+.slide-body th.col-r, .slide-body td.col-r { text-align: right; }
+.slide-body thead th {
+  border-bottom: 1px solid var(--ink); font-weight: 600; color: var(--ink-strong);
+}
+.slide-body tbody tr + tr td { border-top: 1px solid var(--rule); }
+.slide-body ol { padding-left: 1.5em; margin-top: var(--sp-2, 8px); }
+.slide-body ol li::marker { color: var(--crimson); font-weight: 600; }
+pre.codeblock {
+  background: var(--code-bg); color: var(--code-fg);
+  border: 1px solid var(--code-bd); border-radius: 6px;
+  padding: var(--sp-3, 12px) var(--sp-5, 24px);
+  font-size: .72em; line-height: 1.6;
+  overflow-x: auto; max-width: 100%; margin: var(--sp-4, 16px) 0; position: relative;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+pre.codeblock code { background: none; border: none; padding: 0; color: inherit; font-size: inherit; }
+pre.codeblock[data-lang]::before {
+  content: attr(data-lang); position: absolute; top: 6px; right: 12px;
+  font-size: 12px; color: var(--crimson);
+}
+li.task { list-style: none; margin-left: -1.2em; }
+li.task::before { content: "☐ "; color: var(--crimson); }
+li.task-done::before { content: "☑ "; color: var(--crimson); }
+figure.figure { margin: var(--sp-4, 16px) 0; text-align: center; }
+figure.figure img { max-width: 100%; max-height: 400px; border: 1px solid var(--rule); }
+img.inline-img { max-height: 1.5em; vertical-align: middle; }
+
 /* ---------- ✦ AIGC 水印卡：暖米底 + 深赭字（语义与 v1/v2 一致） ----------
    注意：必须用 display: inline 而非 inline-block——CSS 规范规定
    inline-block 的基线 = 其内部最后一个行盒的基线，长卡内部换行后

@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="mdshow">
+<title>我们站在一个重要的交叉路口 · mdshow</title>
+<style>
+/* ============================================================
+   mdshow theme v2 —— 「规范版 · 紫檀」
+   依据《中文 PPT 与网页设计调研笔记》对 v1（复刻版）的规范化改造。
+   v1 保留不动（忠于 jyy 原版视觉，可随时回滚）；本文件只服务 v2 演示稿。
+
+   规则溯源（对照调研笔记章节）：
+   [1.1]  画布 1280×720，尺寸尽量用 token 表达
+   [1.2]  安全边距 = 画布短边 4%～6% → 上下 36px（5%），左右 52px
+   [1.4]  字号梯度：页标题 40～48 → 40px；正文 28～40 默认 32 → 本稿信息
+          密度高，按笔记取下限 28px；注释 20～24 → 20px（页码/图注）
+   [1.4]  字重只用 400/600/700 三档；中文上限 700，禁 800+
+   [1.5]  动效包进 @media (prefers-reduced-motion: no-preference)
+          （WCAG 2.1 SC 2.3.3，W3C 点名翻页动画）
+   [1.7]  导出：print-color-adjust: exact + @page 1280px 720px + 逐页分页
+          + fragment 终态兜底（防导出空白）
+   [2.5]  对比度全部按 WCAG AA 校验（程序实测，见 scripts/contrast_calc.py）：
+          正文 14.5:1 / aigc 6.75:1 / 页码 5.04:1 / 标题栏白字 8.8:1；
+          v1 占位卡 4.09:1 不达标 → v2 加深为 #645A9B（5.81:1）
+   [3.7]  中文无真斜体 → em/i 改着重号 text-emphasis（font-style: normal）
+   [3.7]  避头尾 line-break: strict；word-break: normal（禁 break-all）
+   [3.7]  字间距只加在标题上（0.02em）
+   [四]   反 AI slop：非纯黑纯白（墨色带紫相）、圆角按层级（标签 4px /
+          卡片 10px）、标题 text-wrap: balance
+   [2.2]  间距 8px 基准 token，区块之间额外加一档（h2.sec 上边距 32px）
+   ============================================================ */
+
+:root {
+  /* —— 色板：中性打底 + 单一紫强调（品牌色保留，对比度全部实测过线）—— */
+  --purple-900: #3E3663;
+  --purple-700: #54497F;   /* aigc 文字：对 #EFEAF8 = 6.75:1 */
+  --purple-600: #6A5FA8;   /* 链接：对 #FFF = 5.50:1 */
+  --purple-500: #7C71B5;
+  --lavender:   #EFEAF8;   /* aigc 底色 */
+  --lavender-2: #FBFAFE;   /* 占位卡底色 */
+  --dash:       #C3B7E6;
+  --ink:        #2B2735;   /* 正文墨色：带紫相深灰，14.54:1（雷：纯 #000） */
+  --ink-strong: #1F1B2E;   /* 页面标题：16.74:1 */
+  --t3:         #6E6E78;   /* 页码/注释：5.04:1（≥ #767676 临界线） */
+  --ph-text:    #645A9B;   /* 占位卡文字：5.81:1（v1 的 #7E72B2 仅 4.09:1） */
+
+  /* —— 字号 token [1.4]（1280×720 基准）—— */
+  --fs-title: 40px;        /* 页面标题 40～48 档 */
+  --fs-sec:   30px;        /* 页内小节（介于标题与正文之间） */
+  --fs-body:  28px;        /* 正文：默认 32，高密度稿按笔记取下限 28 */
+  --fs-note:  20px;        /* 注释/页码 20～24 档，低于 20 投影读不清 */
+
+  /* —— 字重档：全稿只用这三档 [1.4] —— */
+  --w-body: 400;
+  --w-mark: 600;
+  --w-head: 700;
+
+  /* —— 间距 token [2.2]：8px 基准 —— */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-6: 24px; --sp-8: 32px; --sp-12: 48px;
+
+  --stage-w: 1280px;
+  --stage-h: 720px;
+  --pad-y: 36px;           /* 安全边距 = 720 × 5% [1.2] */
+  --pad-x: 52px;           /* 1280 × ~4% */
+  --header-h: 92px;        /* 40px 标题 × 1.25 行高 + 上下留白 */
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+
+body {
+  background: #232228;
+  /* 系统字体栈 [2.7]，与调研笔记 HTML 版同款 */
+  font-family: system-ui, -apple-system, "Segoe UI", "PingFang SC",
+               "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC",
+               "Noto Sans CJK SC", sans-serif;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- 舞台：1280x720 等比缩放 [1.1] ---------- */
+.viewport {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.stage {
+  width: var(--stage-w); height: var(--stage-h);
+  position: relative; flex: none;
+  background: #fff;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, .45);
+}
+
+/* ---------- 幻灯片基体 ---------- */
+.slide {
+  position: absolute; inset: 0;
+  background: #fff;
+  display: none; flex-direction: column;
+  overflow: hidden;
+  -webkit-print-color-adjust: exact;   /* [1.7] 防 PDF 背景丢失 */
+  print-color-adjust: exact;
+}
+.slide.active { display: flex; }
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---------- 内容页：紫渐变标题栏（品牌色保留，白字对比度 8.8:1） ---------- */
+.slide-header {
+  flex: none; height: var(--header-h); padding: 0 var(--pad-x);
+  display: flex; align-items: center;
+  background: linear-gradient(95deg, #4C4378 0%, #6C62A6 55%, #9186C4 100%);
+}
+.slide-header h2 {
+  color: #fff; font-size: var(--fs-title); font-weight: var(--w-head);
+  line-height: 1.25;                       /* [1.4] 标题行高 1.15～1.25 */
+  letter-spacing: .02em;                   /* [3.7] 字间距只加在标题上 */
+  text-wrap: balance;                      /* [四] 标题断行优化 */
+}
+
+.slide-body {
+  flex: 1; padding: var(--pad-y) var(--pad-x);
+  font-size: var(--fs-body); font-weight: var(--w-body);
+  line-height: 1.55;                       /* [1.4] 正文 1.5～1.6 */
+  color: var(--ink);
+  overflow: hidden;
+  word-break: normal;                      /* [3.7] 中文禁 break-all */
+  overflow-wrap: break-word;               /* [3.7] 长 URL 才断 */
+  line-break: strict;                      /* [3.7] 严格避头尾 */
+}
+
+/* ---------- 正文元素 ---------- */
+.slide-body h2.sec {
+  font-size: var(--fs-sec); font-weight: var(--w-head);
+  line-height: 1.25; color: var(--ink-strong);
+  margin: 0 0 var(--sp-3);
+  text-wrap: balance;
+}
+.slide-body h2.sec:not(:first-child) { margin-top: var(--sp-8); }  /* [2.2] 区块间加档 */
+
+.slide-body p { margin: 0 0 var(--sp-4); text-wrap: pretty; }
+.slide-body h3 {
+  font-size: var(--fs-sec); color: var(--ink-strong);
+  margin: 0 0 var(--sp-4);
+}
+
+/* [3.7] 中文没有真斜体：em/i 一律禁用合成斜体，改着重号 */
+.slide-body em, .slide-body i {
+  font-style: normal;
+  text-emphasis: filled dot var(--purple-600);
+  text-emphasis-position: under right;
+}
+
+.slide-body ul {
+  padding-left: 1.1em;
+  display: flex; flex-direction: column; gap: var(--sp-3);
+}
+.slide-body li { line-height: 1.5; text-wrap: pretty; }
+.slide-body ul ul {
+  margin-top: var(--sp-2);                 /* [2.2] 区块内小间距 */
+  padding-left: .9em; gap: var(--sp-2);
+}
+
+a { color: var(--purple-600); text-decoration: underline; text-underline-offset: .12em; }
+code {
+  background: #F4F2FA; border: 1px solid #E3DEF2; border-radius: var(--sp-1);
+  padding: .05em .35em; font-size: .85em;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+/* ---------- 表格 / 有序列表 / 代码块 / 任务列表 / 真实图片 ----------
+   2026-09 全格式补全：引擎新增五种块级语法，主题配套样式。
+   表格：淡紫表头 + 紫色底线 + 斑马纹，单元格四档对齐（col-c/col-r）。 */
+.slide-body table {
+  border-collapse: collapse; width: 100%;
+  font-size: .88em; margin: var(--sp-4) 0; line-height: 1.45;
+}
+.slide-body th, .slide-body td {
+  border: 1px solid #DDD7EE; padding: .4em .65em;
+  text-align: inherit; vertical-align: top;
+}
+.slide-body th.col-c, .slide-body td.col-c { text-align: center; }
+.slide-body th.col-r, .slide-body td.col-r { text-align: right; }
+.slide-body thead th {
+  background: #F1EDFA; color: var(--ink-strong);
+  font-weight: var(--w-mark); border-bottom: 2px solid var(--purple-500);
+}
+.slide-body tbody tr:nth-child(even) { background: #FAF9FD; }
+
+/* 有序列表：紫色序号，与无序列表同间距节奏 */
+.slide-body ol {
+  padding-left: 1.5em;
+  display: flex; flex-direction: column; gap: var(--sp-3);
+}
+.slide-body ol li::marker { color: var(--purple-600); font-weight: var(--w-mark); }
+
+/* 围栏代码块：深墨紫底浅字，右上角语言徽标；横向滚动防溢出 */
+pre.codeblock {
+  background: var(--ink-strong); color: #E8E4F2;
+  border-radius: 8px; padding: var(--sp-4) var(--sp-6);
+  font-size: .72em; line-height: 1.6; overflow-x: auto; max-width: 100%;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  margin: var(--sp-4) 0; position: relative;
+}
+pre.codeblock code {
+  background: none; border: none; padding: 0;
+  color: inherit; font-size: inherit;
+}
+pre.codeblock[data-lang]::before {
+  content: attr(data-lang);
+  position: absolute; top: 8px; right: 14px;
+  font-size: 12px; color: #9C90CC; letter-spacing: .06em;
+}
+
+/* 任务列表：☐/☑ 用 ::before 绘制，负外边距对齐 disc 列表符位置 */
+li.task { list-style: none; margin-left: -1.1em; }
+li.task::before { content: "☐ "; color: var(--purple-600); }
+li.task-done::before { content: "☑ "; color: var(--purple-600); }
+li.task-done { color: var(--t3); }
+
+/* 真实图片：整行图版居中、限高防溢出、圆角投影；行内小图随文 */
+figure.figure { margin: var(--sp-4) 0; text-align: center; }
+figure.figure img {
+  max-width: 100%; max-height: 400px; border-radius: 8px;
+  box-shadow: 0 6px 24px rgba(62, 54, 99, .18);
+}
+img.inline-img { max-height: 1.5em; vertical-align: middle; border-radius: 4px; }
+
+/* ---------- ✦ AIGC 水印卡 [标签级圆角 4px，四] ---------- */
+.aigc {
+  display: inline-block;
+  background: var(--lavender);
+  color: var(--purple-700);
+  padding: .08em .45em; border-radius: var(--sp-1);
+  font-weight: var(--w-mark);
+}
+.aigc::before { content: "✦ "; }
+p.callout { margin: var(--sp-4) 0 0 2px; }
+li.callout-item { list-style: disc; }
+
+/* ---------- [[...]] 图片占位卡 [卡片级圆角 10px，四] ---------- */
+.imgph {
+  margin: var(--sp-4) 0;
+  padding: var(--sp-4) var(--sp-6);
+  border: 2px dashed var(--dash);
+  background: var(--lavender-2);
+  color: var(--ph-text);
+  border-radius: 10px;
+  display: inline-flex; align-items: center; gap: var(--sp-3);
+  font-size: var(--fs-note); line-height: 1.5;   /* [1.4] 注释级 20px 起步 */
+  max-width: 100%;
+}
+.ph-ico {
+  width: 30px; height: 24px; flex: none;
+  border: 2px solid #9C90CC; border-radius: 4px;
+  position: relative; overflow: hidden; background: #F1EDFA;
+}
+.ph-ico::before {
+  content: ""; position: absolute; left: 3px; top: 12px;
+  border-left: 6px solid transparent; border-right: 6px solid transparent;
+  border-bottom: 9px solid #9C90CC;
+}
+.ph-ico::after {
+  content: ""; position: absolute; right: 4px; top: 4px;
+  width: 5px; height: 5px; border-radius: 50%; background: #9C90CC;
+}
+span.ph {
+  display: inline-block;
+  border: 1.5px dashed var(--dash); border-radius: var(--sp-1);
+  background: var(--lavender-2); color: var(--ph-text);
+  padding: 0 .3em; font-size: .92em;
+}
+
+/* ---------- 数学排版（ISO 80000 / LaTeX 惯例，非整体斜体） ----------
+   容器绝不整体 italic——那是"英文斜了一遍"的刻意感来源。
+   引擎已按词性输出标签：单字母变量 <var>、函数名/标识符裸文本、
+   数字与运算符裸文本。字体用衬线体呼应数学教科书观感，
+   字号 +5% 补偿 serif 偏小的 x-height，使其与 sans 正文视觉等大。 */
+.math {
+  font-family: "Times New Roman", Georgia, "Noto Serif SC", serif;
+  font-size: 1.05em;
+  white-space: nowrap;
+}
+.math var {
+  font-style: italic;               /* 数学变量：斜体衬线 */
+  font-family: inherit;
+  font-weight: inherit;
+  padding-right: .03em;             /* 斜体字母不贴住后一字符 */
+}
+.math sub, .math sup { font-size: .68em; }
+.math.math-d { display: inline-block; padding: 0 var(--sp-1); }
+/* 行内公式放不下时的智能升格（runtime fixMath 判定后加挂）：
+   独占一行居中，观感即行间公式——"要么整行，要么另起一行"。
+   比版心还宽的极端公式：max-width + 横向滚动兜底，绝不撑破版心 */
+.math.math-block {
+  display: block;
+  text-align: center;
+  white-space: nowrap;
+  margin: var(--sp-2) 0;
+  max-width: 100%;
+  overflow-x: auto;
+  padding-bottom: 4px;    /* 给滚动条留位，避免遮住下标 */
+}
+.math-display {
+  font-family: "Times New Roman", Georgia, "Noto Serif SC", serif;
+  font-size: calc(var(--fs-sec) * 1.06);
+  text-align: center;
+  margin: var(--sp-4) 0;
+  color: var(--ink-strong);
+}
+.math-display var { font-style: italic; padding-right: .03em; }
+
+/* ---------- 封面 / 封底（方言 A 备用）[1.4] 封面主标题 72～96 → 76px ---------- */
+.slide.cover {
+  background: linear-gradient(135deg, #443B70 0%, #6B60A5 55%, #9488C8 100%);
+  align-items: center; justify-content: center; text-align: center;
+}
+.cover h1 {
+  color: #fff; font-size: 76px; font-weight: var(--w-head);
+  line-height: 1.15; letter-spacing: .02em; margin-bottom: var(--sp-4);
+}
+.cover .cover-sub { color: rgba(255, 255, 255, .82); font-size: var(--fs-body); }
+.cover::after {
+  content: "✦"; position: absolute; right: -50px; bottom: -130px;
+  font-size: 420px; line-height: 1; color: rgba(255, 255, 255, .06);
+  pointer-events: none;
+}
+.cover .pageno { display: none; }
+
+/* ---------- 页码 [1.4] 注释级 20px ---------- */
+.pageno {
+  position: absolute; right: 18px; bottom: 12px;
+  font-size: var(--fs-note); line-height: 1.5;
+  color: var(--t3);
+}
+
+/* ---------- 分步显示 [1.5]：状态在外面，动效包进 no-preference ---------- */
+.fragment { opacity: 0; transform: translateY(6px); }
+.fragment.shown { opacity: 1; transform: none; }   /* 终态（状态规则，不依赖动效偏好） */
+@media (prefers-reduced-motion: no-preference) {
+  .slide.active { animation: fadein .18s ease; }
+  .fragment { transition: opacity .25s ease, transform .25s ease; }
+}
+
+/* ---------- 总览模式（O） ---------- */
+body.overview { background: #1B1A20; }
+.overview .stage {
+  position: static; width: auto; height: auto;
+  box-shadow: none; background: transparent;
+  display: block;
+}
+.overview .slide {
+  display: block !important;
+  transform-origin: 0 0;
+  cursor: pointer;
+  border-radius: 4px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .5);
+  outline: 3px solid transparent;
+}
+.overview .slide.current { outline-color: #A99BDD; }
+.overview .fragment { opacity: 1 !important; transform: none !important; }
+
+/* ---------- 操作提示条（浮层 UI，14px 为界面字，非幻灯片正文） ---------- */
+.helpbar {
+  position: fixed; left: 14px; bottom: 12px; z-index: 50;
+  color: rgba(255, 255, 255, .85); font-size: 14px;
+  background: rgba(0, 0, 0, .55); padding: 6px 12px; border-radius: 20px;
+  pointer-events: none; transition: opacity .8s;
+}
+.helpbar.fade { opacity: 0; }
+
+/* ---------- 打印 / 导出 PDF [1.7] ---------- */
+@page { size: 1280px 720px; margin: 0; }
+@media print {
+  body { background: #fff; overflow: visible; }
+  .viewport { position: static; display: block; }
+  .stage { transform: none !important; width: auto; height: auto; box-shadow: none; }
+  .slide {
+    display: flex !important; position: relative;
+    width: var(--stage-w); height: var(--stage-h);
+    break-after: page; page-break-after: always;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .slide:last-child { break-after: auto; page-break-after: auto; }
+  .fragment { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .slide { animation: none !important; }   /* 打印快照不catch入场中态 */
+  .helpbar { display: none; }
+}
+/* ============================================================
+   「紫檀·南大复刻」增强覆盖 —— 追加在 theme-v2-zitan.css 末尾生效
+   （skill「追加覆盖法」：同名选择器后者生效，原主题文件零改动、可回滚）
+
+   本片段服务《生成式软件工程》开场白 24 页复刻稿，处理 jyy 原版
+   出现而 v2 未覆盖的元素：
+     1. .aigc 长卡换行修复（原版 tu07/tu10/tu13 列表符漂移的根因）
+     2. blockquote.quote 引用块（tu02/tu10/tu11/tu23：大引号 + 左竖线）
+     3. del 删除线（tu14「装机仙人」）
+     4. sub/sup 上下标（数学指数与下标，tu13/tu19/tu23）
+     5. .math 允许断行（长公式防溢出；原版 tu13 裸 LaTeX 即翻车案例）
+   ============================================================ */
+
+/* 1) 长卡换行修复：inline-block 的基线 = 其内部最后一个行盒的基线，
+      换行时 li::marker 会漂移到第二行（v2 原版同款问题）。
+      改 inline + box-decoration-break: clone：换行处每段都有完整底色。 */
+.aigc {
+  display: inline;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* 2) 引用块：借鉴原版长处（大引号装饰 + 左竖线 + 浅底），
+      用紫檀色系重绘；内部 aigc span 水印语义不受容器影响。 */
+blockquote.quote {
+  position: relative;
+  margin: var(--sp-4) 0;
+  padding: var(--sp-3) var(--sp-6) var(--sp-3) 64px;
+  background: #F7F5FB;
+  border-left: 4px solid var(--purple-500);
+  border-radius: 0 10px 10px 0;      /* [四] 卡片级圆角 */
+  line-height: 1.6;
+}
+blockquote.quote::before {
+  content: "\201C";
+  position: absolute; left: 18px; top: 4px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 52px; line-height: 1;
+  color: var(--dash);
+}
+/* 引用块内的 aigc 卡背景与块底色拉开一档 */
+blockquote.quote .aigc { background: #EAE3F6; }
+
+/* 3) 删除线：灰色弱化，表示"已过时/自嘲"语义 */
+del {
+  color: var(--t3);
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  text-decoration-color: #B9AEDD;
+}
+
+/* 4) 上下标：缩小字号且不撑行高，防止行距失衡与溢出 */
+sub, sup { font-size: .62em; line-height: 0; }
+
+/* 5) 数学断行策略（2026-09 修订）：早期方案是放任断行
+      （white-space: normal），实测公式从中间折断观感差；
+      新方案由 runtime fixMath 接管——行内公式 nowrap 整体不可分，
+      超出版心的自动升格 .math-block（独立一行居中，行间公式观感）。
+      样式在 theme-v2-zitan.css 本体，override 不再覆盖。 */
+
+/* ============================================================
+   6) 高密度档（复刻稿特有）：原版信息密度远超日常讲稿，
+      在规范允许区间内收紧到下限——
+      [1.4] 正文行高 1.5～1.6 → 取 1.5；
+      [2.2] 间距 8px 基准 → 列表 gap 取 --sp-2；
+      [1.2] 安全边距 4%～6% → 上下 30px（4.2%）。
+      均为 token 级微调，不触碰字号梯度与对比度底线。
+   ============================================================ */
+.slide-body { padding: 30px var(--pad-x); line-height: 1.5; }
+.slide-body ul { gap: var(--sp-2); }
+.slide-body li { line-height: 1.5; }
+.slide-body h2.sec:not(:first-child) { margin-top: var(--sp-6); }
+.slide-body p { margin-bottom: var(--sp-3); }
+blockquote.quote {
+  margin: var(--sp-3) 0;
+  padding-top: var(--sp-2);
+  padding-bottom: var(--sp-2);
+  line-height: 1.5;
+}
+
+</style>
+</head>
+<body>
+<div class="viewport" id="viewport">
+  <div class="stage" id="stage">
+  <section class="slide content" data-i="1">
+    <header class="slide-header"><h2 data-sec="1">我们站在一个重要的交叉路口</h2></header><div class="slide-body"><h2 class="sec">四次把昂贵能力变成日用品</h2><p>PC (1975, Altair 8800)、互联网 (1993, Mosaic)、移动互联网 (2007, iPhone)、AI (2022, ChatGPT)，在人类命运的交叉路口，需要一个非常实验性的课程。</p><div class="imgph"><span class="ph-ico"></span><span>图片：从 Altair 8800 到 ChatGPT——四次个人计算革命的设备合影</span></div><p><span class="aigc">真正的拐点，不是机器又强了一点：而是某种昂贵能力，突然变成了日用品。</span></p></div>
+    <div class="pageno">1/27</div>
+  </section>
+  <section class="slide content" data-i="2">
+    <header class="slide-header"><h2 data-sec="2">Why? 狼来了</h2></header><div class="slide-body"><h2 class="sec">作业完成了，学习发生了吗？</h2><p>Vibe coding 很厉害，作业直接丢进 codex 就完成了。</p><p><span class="aigc">过去，作品 ≈ 能力留下的痕迹；现在，同一份作品可能对应完全不同的能力。</span></p><blockquote class="quote"><span class="aigc">如果 Codex 能交出满分作业，满分究竟证明了谁的什么能力？</span></blockquote></div>
+    <div class="pageno">2/27</div>
+  </section>
+  <section class="slide content" data-i="3">
+    <header class="slide-header"><h2 data-sec="3">三种焦虑</h2></header><div class="slide-body"><h2 class="sec">三个问题，一个共同的根</h2><ul><li class="fragment"><span class="aigc">AI 正在把“学习”、“文凭”和“被选中”拆成三件事：</span><li class="fragment">焦虑 (1)：AI 帮我上大学，最后什么都没学会。怎么办？<li class="fragment">焦虑 (2)：听话学习了四年，发现被大学骗了？<li class="fragment">焦虑 (3)：为了刷出一份完美的<i>简历</i>，输了人生？</ul><p><span class="aigc">我是在增长能力，还是在增长“看起来有能力”的证据？</span></p></div>
+    <div class="pageno">3/27</div>
+  </section>
+  <section class="slide content" data-i="4">
+    <header class="slide-header"><h2 data-sec="4">What? AI 时代还有用的“软件工程智慧”</h2></header><div class="slide-body"><h2 class="sec">软件工程研究的是“怎么让工程不失败”</h2><ul><li class="callout-item fragment"><span class="aigc">AI 可以加速实现，却不会自动暴露未知、分配责任或验证结果</span><li class="callout-item fragment"><span class="aigc">工程的目标不是让 demo 跑起来，而是让系统在约束、变化和协作中继续活着</span></ul><h2 class="sec">大学还能教你的</h2><ul><li class="fragment">信息差、能坐牢、<b>能驾驭</b><li class="callout-item fragment"><span class="aigc">信息差：知道哪里不知道；能坐牢：为取舍承担后果；能驾驭：让人、Agent 与反馈持续对齐目标</span><li class="callout-item fragment"><span class="aigc">Mars Climate Orbiter 的单位接口事故提醒我们：风险常发生在团队边界；真正的工程能力，是建立在发射前叫停错误的闭环</span></ul></div>
+    <div class="pageno">4/27</div>
+  </section>
+  <section class="slide content" data-i="5">
+    <header class="slide-header"><h2 data-sec="5">How? 案例为主的松散组织</h2></header><div class="slide-body"><h2 class="sec">探索一条“杀死大学”的路径</h2><ul><li class="fragment">课堂自由讨论、完整记录（直播）<li class="fragment">课后重新整理<li class="fragment">以切片形式公开，进而实现永生<li class="callout-item fragment"><span class="aigc">让讨论可搜索、可引用、可修订、可重组</span><li class="callout-item fragment"><span class="aigc">直播只能保存现场：“永生”来自把一次性课堂变成可持续维护的知识资产</span><li class="callout-item fragment"><span class="aigc"><a href="https://www.feynmanlectures.caltech.edu/">Feynman Lectures</a> 也是从课堂录音出发，经编辑、数字化和交叉链接，才成为跨越数十年的课程</span></ul></div>
+    <div class="pageno">5/27</div>
+  </section>
+  <section class="slide content" data-i="6">
+    <header class="slide-header"><h2 data-sec="6">Everything is code</h2></header><div class="slide-body"><h2 class="sec">这套 slides 如何工作？</h2><ul><li class="fragment">文本是 source of truth：你看到的其他模态都是 AIGC<li class="callout-item fragment"><span class="aigc">完整讲义提供上下文 → 选中的 snippet 划定边界 → Agent 扩写 → Markdown slides → 浏览器渲染</span><li class="callout-item fragment"><span class="aigc">生成内容统一标记为 aigc：逻辑改变时修改源码，图片、网页和视频切片都可以重新生成</span></ul><h2 class="sec">要“永生”的不是一份录像</h2><ul><li class="callout-item fragment"><span class="aigc">保存可编辑、可 diff、可复现的源代码与构建过程，而不只是最终像素</span><li class="fragment">如果成功，就“永生”我的操作系统课</ul></div>
+    <div class="pageno">6/27</div>
+  </section>
+  <section class="slide content" data-i="7">
+    <header class="slide-header"><h2 data-sec="7">How? 重新找回同学们心中的热情</h2></header><div class="slide-body"><h2 class="sec">鼓励大家多实践，禁止古法编程</h2><ul><li class="callout-item fragment"><span class="aigc">实践不是课后巩固，而是学习发生的主循环：一项汇总 225 项本科 STEM 研究<a href="https://www.pnas.org/doi/10.1073/pnas.1319030111">的研究</a>显示，主动学习提高了成绩并降低了失败率</span><li class="callout-item fragment"><span class="aigc">让 Agent 承担可描述的劳动，把人的注意力留给选择、验证与品味</span><li class="callout-item fragment"><span class="aigc">“禁止古法编程”不是禁止理解代码，而是拒绝把“手敲实现”误当成学习目标</span><li class="callout-item fragment"><span class="aigc">新的练习闭环：提出值得做的问题 → 调度 Agent → 检验现实结果 → 复盘并提高下一次判断</span></ul></div>
+    <div class="pageno">7/27</div>
+  </section>
+  <section class="slide content" data-i="8">
+    <header class="slide-header"><h2 data-sec="8">课程 Policy：Token 自费</h2></header><div class="slide-body"><h2 class="sec">没有 token 的 CS 学生应该<b>立即退学</b></h2><ul><li class="fragment">个人观点<li class="fragment">不需要 tokenmaxxing<li class="fragment">课程课堂全程 deepseek-v4-flash<li class="callout-item fragment"><span class="aigc">Token 是 AI 时代的实验耗材：亲自使用，才能形成成本—质量—延迟意识</span><li class="callout-item fragment"><span class="aigc">真正稀缺的不是 token，而是值得花 token 的问题、清晰约束和可靠验收</span></ul><div class="imgph"><span class="ph-ico"></span><span>图片：表情包——梁文峰抱臂而立，两名黑衣人蹲地抱头</span></div></div>
+    <div class="pageno">8/27</div>
+  </section>
+  <section class="slide content" data-i="9">
+    <header class="slide-header"><h2 data-sec="9">课程 Policy：尽量“通过 / 不通过”</h2></header><div class="slide-body"><h2 class="sec">不验收作业，不评分</h2><ul><li class="fragment">有建议的实验和反馈<li class="fragment">现在越来越难找到客观衡量标准<li class="fragment">“服从性考试没有意义”——大家都一样，职场见<li class="callout-item fragment"><span class="aigc">不评分 ≠ 不评价：去掉排名信号，把反馈留给下一次迭代</span></ul><h2 class="sec">用作品回答“你做成了什么？”</h2><ul><li class="fragment">希望大家能在简历里写：“在《生成式软件工程》课程中实现了 A, B, C, D, …（github.io 链接）”<li class="fragment">例子：我的主页<li class="callout-item fragment"><span class="aigc">最终证据不是分数，而是别人可以打开、运行、质疑并继续使用的作品：github.io 是一条可审计的成长轨迹</span></ul></div>
+    <div class="pageno">9/27</div>
+  </section>
+  <section class="slide content" data-i="10">
+    <header class="slide-header"><h2 data-sec="10">LLM 和 Agent</h2></header><div class="slide-body"><h2 class="sec">一个简单到离谱的接口</h2><p>LLM (autoregressive)：一个概率分布 <span class="math">Pr[token | context]</span></p><ul><li class="fragment">它很大、训练不崩很难<li class="fragment">这门课是“使用者视角”，所以不需要任何 LLM 的知识<li class="callout-item fragment"><span class="aigc">“预测下一个 token”是训练接口，不是能力上限：要同时预测代码、证明、对话和故事，模型就被迫压缩语言背后的世界规律。</span><li class="callout-item fragment"><span class="aigc">自回归把静态分布展开成计算过程：每个输出都会写回 context；足够长的 token 序列可以承载草稿、算法和推理。</span><li class="callout-item fragment"><span class="aigc">使用者最有用的心智模型：它不是答案数据库，而是一个由 context 条件化的模拟器——我们真正“编程”的是 context。</span></ul><blockquote class="quote"><span class="aigc">流畅，只说明“在这个上下文里像一个答案”；它不是正确性的证据。</span></blockquote></div>
+    <div class="pageno">10/27</div>
+  </section>
+  <section class="slide content" data-i="11">
+    <header class="slide-header"><h2 data-sec="11">GPT-4 (2023)：给五岁孩子解释 SEM</h2></header><div class="slide-body"><h2 class="sec">不只是知道，而是为听众重编码</h2><p>为我的五岁小朋友解释扫描电子显微镜 (SEM)：朴素的语言、打合适的比方，便于他理解本质原理。</p><blockquote class="quote"><span class="aigc">把样品想成黑屋里的一小块月球地面。SEM 不用相机一次拍完整张照片，而拿一支看不见、细得不得了的“电子铅笔”，一行一行扫过表面。铅笔尖碰到哪里，那里就会蹦出或弹回一些电子；旁边的“小桶”把它们接住，接得多就在屏幕上画亮一点，接得少就画暗一点。无数亮暗小点拼起来，我们就看见了肉眼看不到的表面纹理。</span></blockquote><ul><li class="callout-item fragment"><span class="aigc">因果骨架没有丢：电子束逐点扫描 → 探测二次/背散射电子 → 信号强弱映射成像素。</span><li class="callout-item fragment"><span class="aigc">SEM 不是“拿更强的相机放大”，而是扫描、测量、重建：图像像三维地形，也不等于直接测得三维高度。</span><li class="callout-item fragment"><span class="aigc">产品跃迁不只是“知道 SEM”，而是能建立听众模型：检索系统给术语，LLM 可以成为知识与人之间的认知接口。</span></ul></div>
+    <div class="pageno">11/27</div>
+  </section>
+  <section class="slide content" data-i="12">
+    <header class="slide-header"><h2 data-sec="12">从 ChatGPT 到 Agent</h2></header><div class="slide-body"><h2 class="sec">反馈回路越来越长</h2><p>Transformer 论文出现时，NLP 领域已经热起来了；但直到 ChatGPT，才出现“现象级”产品。</p><p><span class="aigc">Transformer 让计算可扩展：ChatGPT 把能力放进低摩擦的对话界面；reasoning 在测试时投入更多计算；Agent 再把环境反馈接回模型。产品跃迁来自整条链一起越过阈值。</span></p><ul><li class="fragment">GPT o-family &amp; DeepSeek R1 (2024–2025)<li class="fragment">Chain-of-thought 实现 in-context reasoning：test-time scaling 还可以增加轨迹、候选、搜索与验证，显著提高复杂推理能力<li class="fragment">GPT-5 配合 search，幻觉已经非常低；<span class="aigc">但风险也转移到了检索、来源选择和证据综合。</span><li class="fragment">进化的 Claude family (2025)</ul></div>
+    <div class="pageno">12/27</div>
+  </section>
+  <section class="slide content" data-i="13">
+    <header class="slide-header"><h2 data-sec="13">从 ChatGPT 到 Agent（续）</h2></header><div class="slide-body"><h2 class="sec">岌岌可危的转折点</h2><ul><li class="fragment">ReAct 型 Agent 从“不可用”到“能用”，忽然软件工程岌岌可危（这门课内容）<li class="fragment">今天 Agent 产品开始爆发<li class="callout-item fragment"><span class="aigc">ReAct 的“推理—行动—观察”在 2022 年已有：2025 的突变，是模型可靠性、长上下文、工具接口和错误恢复共同越过可用阈值。</span></ul></div>
+    <div class="pageno">13/27</div>
+  </section>
+  <section class="slide content" data-i="14">
+    <header class="slide-header"><h2 data-sec="14">不止 next token</h2></header><div class="slide-body"><h2 class="sec">Context 可以成为可写的状态</h2><p>现在：世界上人才密度最大的领域，颠覆性的创新也许就在明天：Transformers 的上限还没到，上限更高的东西也肯定存在……</p><ul><li class="fragment">为什么不是 <span class="math">Pr[context<sub><var>t</var>+1</sub> | context<sub><var>t</var></sub>]</span> 的模型呢？<li class="fragment"><i>Diffusion LM</i>？<li class="fragment">Self-modifying of context…<li class="callout-item fragment"><span class="aigc">从表达能力看，一串 next-token 已经能生成整个新 context：<span class="math"><var>P</var>(<var>x</var><sub>1:<var>n</var></sub> | <var>c</var>) = ∏<sub><var>i</var></sub> <var>P</var>(<var>x</var><sub><var>i</var></sub> | <var>c</var>, <var>x</var><sub>1:<var>i</var>-1</sub>)</span></span></ul></div>
+    <div class="pageno">14/27</div>
+  </section>
+  <section class="slide content" data-i="15">
+    <header class="slide-header"><h2 data-sec="15">不止 next token（续）</h2></header><div class="slide-body"><ul><li class="callout-item fragment"><span class="aigc">自回归像用钢笔从左写到右：Diffusion LM 更像先铺开整份草稿，再多轮去噪，同时修改多个位置。</span><li class="callout-item fragment"><span class="aigc">Agent loop 已在系统层实现 context-to-context：模型读状态、调用工具、接收观察，再写回记忆。智能属于“模型 + context 更新规则”这个动态系统。</span><li class="callout-item fragment"><span class="aigc">Self-modifying context 把聊天记录变成可写的工作记忆：问题不只是“能否修改”，而是“什么必须保持为不变量”。</span></ul></div>
+    <div class="pageno">15/27</div>
+  </section>
+  <section class="slide content" data-i="16">
+    <header class="slide-header"><h2 data-sec="16">Example 1：现在运行的系统</h2></header><div class="slide-body"><h2 class="sec">Debian on USB</h2><ul><li class="fragment">安装完全由 AI 完成，并且在 QEMU 中运行验证<li class="fragment">不会用？直接<i>生成文档</i><li class="fragment">终端、nvim 的现代配置<li class="fragment">我没有看过任何一眼配置文件，全部由自然语言完成配置<li class="fragment"><del>装机仙人</del>彻底成为历史<li class="fragment">彻底颠覆了计算机中“学习曲线太陡，不想用”的瓶颈<li class="fragment">谁掌握了 AI，谁就掌握了暴增的学习效率，<b>先用好、再理解原理</b><li class="callout-item fragment"><span class="aigc">先用好 ≠ 不验收：学习曲线从“记住每一步”变成“判断结果是否正确”。</span></ul></div>
+    <div class="pageno">16/27</div>
+  </section>
+  <section class="slide content" data-i="17">
+    <header class="slide-header"><h2 data-sec="17">Example 3：读书、读论文</h2></header><div class="slide-body"><h2 class="sec">从古法学习到电子版 Agent</h2><ul><li class="fragment">我又买了以前看过的书，重温一下古法学习<li class="fragment">随后立即电子版 AI Agent 启动<li class="fragment">Extension：读 b 站，生成的讲义<li class="callout-item fragment"><span class="aigc">生成讲义只是转换材料，不自动等于“深度阅读”。</span></ul><h2 class="sec">AI 如何辅助深度阅读？</h2><ul><li class="callout-item fragment"><span class="aigc">追踪论证：结论是什么？证据在哪里？每个回答都能跳回原文。</span><li class="callout-item fragment"><span class="aigc">对抗阅读：让 Agent 提出反例、遗漏的前提，以及作者最强的反驳。</span><li class="callout-item fragment"><span class="aigc">主动回忆：合上原文接受口试，再根据原文纠错：摘要不能替你理解。</span><li class="callout-item fragment"><span class="aigc">重新组织：把新观点改写、归类，并连接到自己的旧笔记与真实问题。</span></ul></div>
+    <div class="pageno">17/27</div>
+  </section>
+  <section class="slide content" data-i="18">
+    <header class="slide-header"><h2 data-sec="18">从白板 Agent 到完整生态</h2></header><div class="slide-body"><h2 class="sec">白板 Agent 只是起点</h2><ul><li class="fragment">注意：以上任务，<b>白板 Agent</b> 就能完成<li class="fragment">Agent 拥有完整的生态系统！<li class="fragment">domain-specific 任务 → domain-specific 插件<li class="fragment">计算机科学定律：你想做的事，一定也有别人想做<li class="callout-item fragment"><span class="aigc">Engelbart 早在 1962 年就指出：增强智能来自“人 + 工具 + 语言 + 方法”的系统，而不是一个孤立的聪明部件（Augmenting Human Intellect）</span><li class="callout-item fragment"><span class="aigc">Agent 能力 ≈ 推理 × 可观测性 × 可操作性 × 反馈</span></ul></div>
+    <div class="pageno">18/27</div>
+  </section>
+  <section class="slide content" data-i="19">
+    <header class="slide-header"><h2 data-sec="19">浏览器不是黑盒</h2></header><div class="slide-body"><h2 class="sec">Browser Use / Computer Use</h2><ul><li class="fragment">Browser CDP (Chrome DevTools Protocol)<li class="fragment">DOM Query、Network、模拟用户输入……<li class="fragment">这是 CS 学生最大的优势：对“计算机世界里有什么”有概念<li class="fragment">~2020s，我们做过一个很疯狂的 project：在 OpenJDK 上运行 Android app，用 CDP 渲染界面<li class="callout-item fragment"><span class="aigc">普通人看到像素和按钮：CS 学生看到 DOM、协议、事件和状态机——系统里往往藏着比“点鼠标”更稳定的控制面</span><li class="callout-item fragment"><span class="aigc">Domain-specific 插件的本质：把巨大、模糊的动作空间，压缩成语义明确、容易验证的操作</span></ul></div>
+    <div class="pageno">19/27</div>
+  </section>
+  <section class="slide content" data-i="20">
+    <header class="slide-header"><h2 data-sec="20">自由组合，无限复用</h2></header><div class="slide-body"><h2 class="sec">信息源 → 信息处理 → 操作</h2><ul><li class="fragment">刚才所有的能力都可以<b>互相增强</b><li class="fragment">信息源（网页、B 站、arXiv、Hacker News……）+ 信息处理 + 操作（淘宝下单、Box 上传、iCloud……）<li class="fragment">于是可以理解为什么 OpenClaw 和 Hermes 是现象级产品了<li class="callout-item fragment"><span class="aigc">组合的关键不是插件够多，而是接口足够窄、稳定：这正是 Unix pipe 留下的软件工程遗产</span></ul><h2 class="sec">工作流也能自举</h2><ul><li class="fragment">我们完全可以录屏一天，让 AI 自动改进流程<li class="callout-item fragment"><span class="aigc">观察操作 → 发现重复模式 → 生成自动化 → 回放验证 → 人确认 → 收集新异常</span></ul></div>
+    <div class="pageno">20/27</div>
+  </section>
+  <section class="slide content" data-i="21">
+    <header class="slide-header"><h2 data-sec="21">未来已来，Harness 未稳</h2></header><div class="slide-body"><h2 class="sec">能做，不等于能放心托付</h2><ul><li class="fragment">OpenClaw/Hermes 预见了这样的未来<li class="fragment">可惜现在的模型/Harness 还没有完全准备好，体验并不够好<li class="callout-item fragment"><span class="aigc">单步成功率即使是 99%，连续 100 步全成功也只有 <span class="math">0.99<sup>100</sup> ≈ 36.6%</span>：长流程需要状态、权限、重试、验证和故障恢复</span></ul><h2 class="sec">一个刺耳的问题</h2><ul><li class="fragment">我很难理解旧人类为什么还能心安理得地每天做重复的事情<li class="callout-item fragment"><span class="aigc">稳定、可描述、可验证的重复，本质上就是一个尚未被抽象出来的程序</span></ul></div>
+    <div class="pageno">21/27</div>
+  </section>
+  <section class="slide content" data-i="22">
+    <header class="slide-header"><h2 data-sec="22">使用 Agents：CS Professional 视角</h2></header><div class="slide-body"><h2 class="sec">别把 Agent 只用来交作业</h2><ul><li class="fragment">最后，我们是 Computer Science 的学生，非常清楚地知道<b>编程</b>的能力界限在哪里<li class="fragment">用 Agent 做作业实在是太大材小用了<li class="callout-item fragment"><span class="aigc">1979 年 VisiCalc 让会计人员不必排队等程序员：能描述流程的人，第一次可以直接拥有工具。</span></ul><h2 class="sec">把需求“编译”成工具</h2><ul><li class="callout-item fragment"><span class="aigc">Agent 的真正杠杆是<b>现场制造工具</b>：把一次性的自然语言需求，变成可重复执行的闭环。</span><li class="callout-item fragment"><span class="aigc">可编程性的边界不在“有没有 API”，而在：能否找到<b>可控输入、可观测输出、可判定的完成条件</b>。</span></ul></div>
+    <div class="pageno">22/27</div>
+  </section>
+  <section class="slide content" data-i="23">
+    <header class="slide-header"><h2 data-sec="23">现场造工具：考试统分</h2></header><div class="slide-body"><h2 class="sec">四阶段流水线</h2><ul><li class="fragment">Phase 1: 按下回车，拍摄一张照片。Offline qwen3.8-27b 识别姓名、学号、小分<li class="fragment">Phase 2: 按照反序，按下回车报出 [姓名][学号][11+12+13+14+15=65]，我检验后誊写总分<li class="fragment">分数自动汇总到教务系统的 Excel 模板<li class="fragment">最后，Agent 直接登记分数（日常应用配合豆包输入法更佳）</ul><h2 class="sec">不是 OCR，而是证据链</h2><ul><li class="callout-item fragment"><span class="aigc">照片是原始凭证，小分是中间表示，总分与 Excel 是派生结果。</span><li class="callout-item fragment"><span class="aigc">“反序 + 报算式”像航空管制的 readback：用不同表示制造冗余，专门截获错位、漏项和误识别。</span><li class="callout-item fragment"><span class="aigc">人只驻守最窄的高风险接口：让机器承担吞吐量，用一次复核阻止错误进入教务系统。</span></ul></div>
+    <div class="pageno">23/27</div>
+  </section>
+  <section class="slide content" data-i="24">
+    <header class="slide-header"><h2 data-sec="24">Everything Is Code</h2></header><div class="slide-body"><h2 class="sec">Agent 可以造 Everything</h2><ul><li class="fragment">视频<li class="callout-item fragment"><span class="aigc">脚本、分镜、素材、时间线、字幕、渲染流水线</span><li class="fragment">论文<li class="callout-item fragment"><span class="aigc">问题、证据、实验、图表、可复现构建</span><li class="fragment">东西 (VibeFab)<li class="callout-item fragment"><span class="aigc">CAD、仿真、BOM、固件、G-code：最后由机器把程序“打印”进现实</span></ul></div>
+    <div class="pageno">24/27</div>
+  </section>
+  <section class="slide content" data-i="25">
+    <header class="slide-header"><h2 data-sec="25">Everything Is Code（续）</h2></header><div class="slide-body"><h2 class="sec">从 Bits 到 Atoms</h2><ul><li class="callout-item fragment"><span class="aigc">从 Jacquard 提花机的穿孔卡到 CNC/3D 打印：可制造物先变成可复制、可修改的控制描述。</span><li class="callout-item fragment"><span class="aigc">视频、论文、零件只是不同后端——Agent 生成中间表示，渲染器、排版系统和机床负责兑现。</span></ul></div>
+    <div class="pageno">25/27</div>
+  </section>
+  <section class="slide content" data-i="26">
+    <header class="slide-header"><h2 data-sec="26">理解 qrgen 的暴毙</h2></header><div class="slide-body"><h2 class="sec">一个“明确”的需求</h2><blockquote class="quote">生成 qrcode.xlsx，只使用 Excel &lt;= 2019 兼容公式，把输入的一个任意字符串（长度可能达到数千），先用 base64 编码，然后转换成 QRCode 的动画：每一帧是 base64 编码的一个片段，F9 显示刷新，1 秒一帧，循环播放；二维码中的数据拼接后应该是完整的 base64 编码字符串。这个任务很容易失败，用接近真实的设定（脚本）验证公式能正确计算。</blockquote><h2 class="sec">隐藏的规格空间</h2><ul><li class="callout-item fragment"><span class="aigc">一句“任意字符串”同时留下编码、分片顺序、容量边界、空串/超长输入、F9 重算和计时语义等选择：需求很短，不等于规格空间很小。</span><li class="callout-item fragment"><span class="aigc">真正的验收式不是“文件能打开”，而是 <span class="math">∀ <var>s</var> : Base64<sup>-1</sup>(concat(scan(frames(<var>s</var>)))) = bytes(<var>s</var>)</span>。</span></ul></div>
+    <div class="pageno">26/27</div>
+  </section>
+  <section class="slide content" data-i="27">
+    <header class="slide-header"><h2 data-sec="27">少量 Prompt，换一个架构</h2></header><div class="slide-body"><h2 class="sec">对比</h2><ul><li class="fragment">仅通过少量 prompt，ĠLM-5.3 在 200K 上下文内完成第一个正确版本<li class="fragment">工作表不因为文本长度膨胀<li class="fragment">公式可复用、代码可维护</ul><h2 class="sec">关键不是“再多想一会”</h2><ul><li class="callout-item fragment"><span class="aigc">真正的转折，是从“生成一个能跑的文件”切换到“设计一个可复用的计算结构”。</span><li class="callout-item fragment"><span class="aigc">相对文本长度，公式模板和工作表结构应保持 <span class="math">O(1)</span>：只有数据、计算量和帧数按 <span class="math">O(<var>n</var>)</span> 增长。</span><li class="callout-item fragment"><span class="aigc">架构检查题：输入从 1 KB 变成 10 KB 时，究竟有哪些东西必须增长？</span></ul></div>
+    <div class="pageno">27/27</div>
+  </section>
+  </div>
+</div>
+<div class="helpbar" id="helpbar">←/→ 翻页 · 空格 下一步 · O 总览 · F 全屏 · 点击左右半屏翻页</div>
+<script>
+/* ============================================================
+   mdshow :: runtime — 放映交互
+   键盘 ←/→/空格 翻页 + 右下角页码（构建时静态生成）
+   O 总览网格 / F 全屏 / Esc 退出
+   点击左右半屏翻页 + 触屏滑动
+   分步显示：列表项/金句卡按 fragment 逐条浮现
+   ============================================================ */
+(function () {
+  "use strict";
+
+  var stage = document.getElementById("stage");
+  var viewport = document.getElementById("viewport");
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var N = slides.length;
+  var frags = slides.map(function (s) {
+    return Array.prototype.slice.call(s.querySelectorAll(".fragment"));
+  });
+
+  var cur = 0;      // 当前页下标
+  var shown = 0;    // 当前页已显示的 fragment 数
+  var overview = false;
+
+  function apply() {
+    slides.forEach(function (s, i) {
+      s.classList.toggle("active", i === cur);
+      s.classList.toggle("current", i === cur);
+    });
+    frags[cur].forEach(function (f, i) {
+      f.classList.toggle("shown", i < shown);
+    });
+    fixMath();
+    try { history.replaceState(null, "", "#/" + (cur + 1)); } catch (e) { /* file:// 下可能受限 */ }
+  }
+
+  /* ---------- 数学防断行：行内公式 nowrap 整体不可分；
+             比整个版心还宽的，升格为独立一行居中（行间公式观感）。
+             用布局值 scrollWidth/clientWidth 测量（transform 缩放不影响布局值），
+             测量时临时转 inline-block 保证各浏览器取值一致 ---------- */
+  function fixMath() {
+    slides.forEach(function (slide) {
+      var body = slide.querySelector(".slide-body");
+      if (!body) { return; }
+      var avail = body.clientWidth - 24;   // 扣除可能的行内装饰余量
+      if (avail <= 0) { return; }          // 页未激活（display:none）时不测，防误判
+      var list = slide.querySelectorAll("span.math");
+      Array.prototype.forEach.call(list, function (el) {
+        el.classList.remove("math-block");
+        el.style.display = "inline-block";  // 测量态：scrollWidth 可靠
+        var w = el.scrollWidth;
+        el.style.display = "";
+        if (w > avail) { el.classList.add("math-block"); }
+      });
+    });
+  }
+  window.addEventListener("resize", function () { fixMath(); });
+
+  function next() {
+    if (shown < frags[cur].length) { shown++; apply(); }
+    else if (cur < N - 1) { cur++; shown = 0; apply(); }
+  }
+
+  function prev() {
+    if (shown > 0) { shown--; apply(); }
+    else if (cur > 0) { cur--; shown = frags[cur].length; apply(); }
+  }
+
+  function jump(i) {
+    cur = Math.max(0, Math.min(N - 1, i));
+    shown = frags[cur].length;   // 跳转落地时展示整页
+    apply();
+  }
+
+  /* ---------- 等比缩放 1280x720 -> 视口 ---------- */
+  function fit() {
+    if (overview) { layoutOverview(); return; }
+    var s = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    stage.style.transform = "scale(" + s + ")";
+  }
+  window.addEventListener("resize", fit);
+
+  /* ---------- 总览模式 ---------- */
+  function layoutOverview() {
+    var vw = window.innerWidth, vh = window.innerHeight;
+    var cols = Math.ceil(Math.sqrt(N));
+    var rows = Math.ceil(N / cols);
+    var cw = vw / cols, ch = vh / rows;
+    var s = Math.min(cw / 1280, ch / 720) * 0.86;
+    slides.forEach(function (el, i) {
+      var c = i % cols, r = Math.floor(i / cols);
+      var x = c * cw + (cw - 1280 * s) / 2;
+      var y = r * ch + (ch - 720 * s) / 2;
+      el.style.transform = "translate(" + x + "px," + y + "px) scale(" + s + ")";
+    });
+  }
+
+  function setOverview(on) {
+    overview = on;
+    document.body.classList.toggle("overview", on);
+    if (on) {
+      stage.style.transform = "none";
+      layoutOverview();
+    } else {
+      slides.forEach(function (el) { el.style.transform = ""; });
+      fit();
+    }
+  }
+
+  /* ---------- 全屏 ---------- */
+  function toggleFullscreen() {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen();
+    }
+  }
+
+  /* ---------- 键盘 ---------- */
+  document.addEventListener("keydown", function (e) {
+    var k = e.key;
+    if (k === "ArrowRight" || k === "ArrowDown" || k === " " || k === "PageDown" || k === "Enter") {
+      e.preventDefault();
+      if (overview) { setOverview(false); } else { next(); }
+    } else if (k === "ArrowLeft" || k === "ArrowUp" || k === "PageUp") {
+      e.preventDefault();
+      if (overview) { setOverview(false); } else { prev(); }
+    } else if (k === "Home") {
+      if (overview) { setOverview(false); }
+      cur = 0; shown = 0; apply();
+    } else if (k === "End") {
+      if (overview) { setOverview(false); }
+      jump(N - 1);
+    } else if (k === "o" || k === "O") {
+      setOverview(!overview);
+    } else if (k === "f" || k === "F") {
+      toggleFullscreen();
+    } else if (k === "Escape") {
+      if (overview) { setOverview(false); }
+    }
+  });
+
+  /* ---------- 点击左右半屏翻页 ---------- */
+  viewport.addEventListener("click", function (e) {
+    if (overview) { return; }                 // 总览由 slide 自己的点击处理
+    if (e.target.closest && e.target.closest("a")) { return; }   // 链接放行
+    var ratio = e.clientX / window.innerWidth;
+    if (ratio < 0.3) { prev(); } else { next(); }
+  });
+
+  /* ---------- 总览里点击某页跳转 ---------- */
+  slides.forEach(function (el, i) {
+    el.addEventListener("click", function (e) {
+      if (!overview) { return; }
+      e.stopPropagation();
+      setOverview(false);
+      jump(i);
+    });
+  });
+
+  /* ---------- 触屏滑动 ---------- */
+  var touchX = null, touchY = null;
+  document.addEventListener("touchstart", function (e) {
+    touchX = e.touches[0].clientX;
+    touchY = e.touches[0].clientY;
+  }, { passive: true });
+  document.addEventListener("touchend", function (e) {
+    if (touchX === null) { return; }
+    var dx = e.changedTouches[0].clientX - touchX;
+    var dy = e.changedTouches[0].clientY - touchY;
+    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < 0) { next(); } else { prev(); }
+    }
+    touchX = touchY = null;
+  }, { passive: true });
+
+  /* ---------- 初始化：支持 #/3 式页码定位 ---------- */
+  var m = (location.hash || "").match(/^#\/(\d+)/);
+  if (m) { cur = Math.max(0, Math.min(N - 1, parseInt(m[1], 10) - 1)); }
+  shown = frags[cur].length;
+  fit();
+  apply();
+
+  setTimeout(function () {
+    var h = document.getElementById("helpbar");
+    if (h) { h.classList.add("fade"); }
+  }, 4000);
+})();
+
+</script>
+</body>
+</html>

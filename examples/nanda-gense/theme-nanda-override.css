@@ -1,0 +1,79 @@
+/* ============================================================
+   「紫檀·南大复刻」增强覆盖 —— 追加在 theme-v2-zitan.css 末尾生效
+   （skill「追加覆盖法」：同名选择器后者生效，原主题文件零改动、可回滚）
+
+   本片段服务《生成式软件工程》开场白 24 页复刻稿，处理 jyy 原版
+   出现而 v2 未覆盖的元素：
+     1. .aigc 长卡换行修复（原版 tu07/tu10/tu13 列表符漂移的根因）
+     2. blockquote.quote 引用块（tu02/tu10/tu11/tu23：大引号 + 左竖线）
+     3. del 删除线（tu14「装机仙人」）
+     4. sub/sup 上下标（数学指数与下标，tu13/tu19/tu23）
+     5. .math 允许断行（长公式防溢出；原版 tu13 裸 LaTeX 即翻车案例）
+   ============================================================ */
+
+/* 1) 长卡换行修复：inline-block 的基线 = 其内部最后一个行盒的基线，
+      换行时 li::marker 会漂移到第二行（v2 原版同款问题）。
+      改 inline + box-decoration-break: clone：换行处每段都有完整底色。 */
+.aigc {
+  display: inline;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* 2) 引用块：借鉴原版长处（大引号装饰 + 左竖线 + 浅底），
+      用紫檀色系重绘；内部 aigc span 水印语义不受容器影响。 */
+blockquote.quote {
+  position: relative;
+  margin: var(--sp-4) 0;
+  padding: var(--sp-3) var(--sp-6) var(--sp-3) 64px;
+  background: #F7F5FB;
+  border-left: 4px solid var(--purple-500);
+  border-radius: 0 10px 10px 0;      /* [四] 卡片级圆角 */
+  line-height: 1.6;
+}
+blockquote.quote::before {
+  content: "\201C";
+  position: absolute; left: 18px; top: 4px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 52px; line-height: 1;
+  color: var(--dash);
+}
+/* 引用块内的 aigc 卡背景与块底色拉开一档 */
+blockquote.quote .aigc { background: #EAE3F6; }
+
+/* 3) 删除线：灰色弱化，表示"已过时/自嘲"语义 */
+del {
+  color: var(--t3);
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  text-decoration-color: #B9AEDD;
+}
+
+/* 4) 上下标：缩小字号且不撑行高，防止行距失衡与溢出 */
+sub, sup { font-size: .62em; line-height: 0; }
+
+/* 5) 数学断行策略（2026-09 修订）：早期方案是放任断行
+      （white-space: normal），实测公式从中间折断观感差；
+      新方案由 runtime fixMath 接管——行内公式 nowrap 整体不可分，
+      超出版心的自动升格 .math-block（独立一行居中，行间公式观感）。
+      样式在 theme-v2-zitan.css 本体，override 不再覆盖。 */
+
+/* ============================================================
+   6) 高密度档（复刻稿特有）：原版信息密度远超日常讲稿，
+      在规范允许区间内收紧到下限——
+      [1.4] 正文行高 1.5～1.6 → 取 1.5；
+      [2.2] 间距 8px 基准 → 列表 gap 取 --sp-2；
+      [1.2] 安全边距 4%～6% → 上下 30px（4.2%）。
+      均为 token 级微调，不触碰字号梯度与对比度底线。
+   ============================================================ */
+.slide-body { padding: 30px var(--pad-x); line-height: 1.5; }
+.slide-body ul { gap: var(--sp-2); }
+.slide-body li { line-height: 1.5; }
+.slide-body h2.sec:not(:first-child) { margin-top: var(--sp-6); }
+.slide-body p { margin-bottom: var(--sp-3); }
+blockquote.quote {
+  margin: var(--sp-3) 0;
+  padding-top: var(--sp-2);
+  padding-bottom: var(--sp-2);
+  line-height: 1.5;
+}
