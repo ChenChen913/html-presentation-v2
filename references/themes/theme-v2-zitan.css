@@ -223,6 +223,18 @@ span.ph {
 }
 .math sub, .math sup { font-size: .68em; }
 .math.math-d { display: inline-block; padding: 0 var(--sp-1); }
+/* 行内公式放不下时的智能升格（runtime fixMath 判定后加挂）：
+   独占一行居中，观感即行间公式——"要么整行，要么另起一行"。
+   比版心还宽的极端公式：max-width + 横向滚动兜底，绝不撑破版心 */
+.math.math-block {
+  display: block;
+  text-align: center;
+  white-space: nowrap;
+  margin: var(--sp-2) 0;
+  max-width: 100%;
+  overflow-x: auto;
+  padding-bottom: 4px;    /* 给滚动条留位，避免遮住下标 */
+}
 .math-display {
   font-family: "Times New Roman", Georgia, "Noto Serif SC", serif;
   font-size: calc(var(--fs-sec) * 1.06);

@@ -28,8 +28,31 @@
     frags[cur].forEach(function (f, i) {
       f.classList.toggle("shown", i < shown);
     });
+    fixMath();
     try { history.replaceState(null, "", "#/" + (cur + 1)); } catch (e) { /* file:// 下可能受限 */ }
   }
+
+  /* ---------- 数学防断行：行内公式 nowrap 整体不可分；
+             比整个版心还宽的，升格为独立一行居中（行间公式观感）。
+             用布局值 scrollWidth/clientWidth 测量（transform 缩放不影响布局值），
+             测量时临时转 inline-block 保证各浏览器取值一致 ---------- */
+  function fixMath() {
+    slides.forEach(function (slide) {
+      var body = slide.querySelector(".slide-body");
+      if (!body) { return; }
+      var avail = body.clientWidth - 24;   // 扣除可能的行内装饰余量
+      if (avail <= 0) { return; }          // 页未激活（display:none）时不测，防误判
+      var list = slide.querySelectorAll("span.math");
+      Array.prototype.forEach.call(list, function (el) {
+        el.classList.remove("math-block");
+        el.style.display = "inline-block";  // 测量态：scrollWidth 可靠
+        var w = el.scrollWidth;
+        el.style.display = "";
+        if (w > avail) { el.classList.add("math-block"); }
+      });
+    });
+  }
+  window.addEventListener("resize", function () { fixMath(); });
 
   function next() {
     if (shown < frags[cur].length) { shown++; apply(); }
