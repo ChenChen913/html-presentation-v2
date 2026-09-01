@@ -1,0 +1,299 @@
+/* ============================================================
+   mdshow theme v2 —— 「规范版 · 紫檀」
+   依据《中文 PPT 与网页设计调研笔记》对 v1（复刻版）的规范化改造。
+   v1 保留不动（忠于 jyy 原版视觉，可随时回滚）；本文件只服务 v2 演示稿。
+
+   规则溯源（对照调研笔记章节）：
+   [1.1]  画布 1280×720，尺寸尽量用 token 表达
+   [1.2]  安全边距 = 画布短边 4%～6% → 上下 36px（5%），左右 52px
+   [1.4]  字号梯度：页标题 40～48 → 40px；正文 28～40 默认 32 → 本稿信息
+          密度高，按笔记取下限 28px；注释 20～24 → 20px（页码/图注）
+   [1.4]  字重只用 400/600/700 三档；中文上限 700，禁 800+
+   [1.5]  动效包进 @media (prefers-reduced-motion: no-preference)
+          （WCAG 2.1 SC 2.3.3，W3C 点名翻页动画）
+   [1.7]  导出：print-color-adjust: exact + @page 1280px 720px + 逐页分页
+          + fragment 终态兜底（防导出空白）
+   [2.5]  对比度全部按 WCAG AA 校验（程序实测，见 scripts/contrast_calc.py）：
+          正文 14.5:1 / aigc 6.75:1 / 页码 5.04:1 / 标题栏白字 8.8:1；
+          v1 占位卡 4.09:1 不达标 → v2 加深为 #645A9B（5.81:1）
+   [3.7]  中文无真斜体 → em/i 改着重号 text-emphasis（font-style: normal）
+   [3.7]  避头尾 line-break: strict；word-break: normal（禁 break-all）
+   [3.7]  字间距只加在标题上（0.02em）
+   [四]   反 AI slop：非纯黑纯白（墨色带紫相）、圆角按层级（标签 4px /
+          卡片 10px）、标题 text-wrap: balance
+   [2.2]  间距 8px 基准 token，区块之间额外加一档（h2.sec 上边距 32px）
+   ============================================================ */
+
+:root {
+  /* —— 色板：中性打底 + 单一紫强调（品牌色保留，对比度全部实测过线）—— */
+  --purple-900: #3E3663;
+  --purple-700: #54497F;   /* aigc 文字：对 #EFEAF8 = 6.75:1 */
+  --purple-600: #6A5FA8;   /* 链接：对 #FFF = 5.50:1 */
+  --purple-500: #7C71B5;
+  --lavender:   #EFEAF8;   /* aigc 底色 */
+  --lavender-2: #FBFAFE;   /* 占位卡底色 */
+  --dash:       #C3B7E6;
+  --ink:        #2B2735;   /* 正文墨色：带紫相深灰，14.54:1（雷：纯 #000） */
+  --ink-strong: #1F1B2E;   /* 页面标题：16.74:1 */
+  --t3:         #6E6E78;   /* 页码/注释：5.04:1（≥ #767676 临界线） */
+  --ph-text:    #645A9B;   /* 占位卡文字：5.81:1（v1 的 #7E72B2 仅 4.09:1） */
+
+  /* —— 字号 token [1.4]（1280×720 基准）—— */
+  --fs-title: 40px;        /* 页面标题 40～48 档 */
+  --fs-sec:   30px;        /* 页内小节（介于标题与正文之间） */
+  --fs-body:  28px;        /* 正文：默认 32，高密度稿按笔记取下限 28 */
+  --fs-note:  20px;        /* 注释/页码 20～24 档，低于 20 投影读不清 */
+
+  /* —— 字重档：全稿只用这三档 [1.4] —— */
+  --w-body: 400;
+  --w-mark: 600;
+  --w-head: 700;
+
+  /* —— 间距 token [2.2]：8px 基准 —— */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-6: 24px; --sp-8: 32px; --sp-12: 48px;
+
+  --stage-w: 1280px;
+  --stage-h: 720px;
+  --pad-y: 36px;           /* 安全边距 = 720 × 5% [1.2] */
+  --pad-x: 52px;           /* 1280 × ~4% */
+  --header-h: 92px;        /* 40px 标题 × 1.25 行高 + 上下留白 */
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+
+body {
+  background: #232228;
+  /* 系统字体栈 [2.7]，与调研笔记 HTML 版同款 */
+  font-family: system-ui, -apple-system, "Segoe UI", "PingFang SC",
+               "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC",
+               "Noto Sans CJK SC", sans-serif;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- 舞台：1280x720 等比缩放 [1.1] ---------- */
+.viewport {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.stage {
+  width: var(--stage-w); height: var(--stage-h);
+  position: relative; flex: none;
+  background: #fff;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, .45);
+}
+
+/* ---------- 幻灯片基体 ---------- */
+.slide {
+  position: absolute; inset: 0;
+  background: #fff;
+  display: none; flex-direction: column;
+  overflow: hidden;
+  -webkit-print-color-adjust: exact;   /* [1.7] 防 PDF 背景丢失 */
+  print-color-adjust: exact;
+}
+.slide.active { display: flex; }
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---------- 内容页：紫渐变标题栏（品牌色保留，白字对比度 8.8:1） ---------- */
+.slide-header {
+  flex: none; height: var(--header-h); padding: 0 var(--pad-x);
+  display: flex; align-items: center;
+  background: linear-gradient(95deg, #4C4378 0%, #6C62A6 55%, #9186C4 100%);
+}
+.slide-header h2 {
+  color: #fff; font-size: var(--fs-title); font-weight: var(--w-head);
+  line-height: 1.25;                       /* [1.4] 标题行高 1.15～1.25 */
+  letter-spacing: .02em;                   /* [3.7] 字间距只加在标题上 */
+  text-wrap: balance;                      /* [四] 标题断行优化 */
+}
+
+.slide-body {
+  flex: 1; padding: var(--pad-y) var(--pad-x);
+  font-size: var(--fs-body); font-weight: var(--w-body);
+  line-height: 1.55;                       /* [1.4] 正文 1.5～1.6 */
+  color: var(--ink);
+  overflow: hidden;
+  word-break: normal;                      /* [3.7] 中文禁 break-all */
+  overflow-wrap: break-word;               /* [3.7] 长 URL 才断 */
+  line-break: strict;                      /* [3.7] 严格避头尾 */
+}
+
+/* ---------- 正文元素 ---------- */
+.slide-body h2.sec {
+  font-size: var(--fs-sec); font-weight: var(--w-head);
+  line-height: 1.25; color: var(--ink-strong);
+  margin: 0 0 var(--sp-3);
+  text-wrap: balance;
+}
+.slide-body h2.sec:not(:first-child) { margin-top: var(--sp-8); }  /* [2.2] 区块间加档 */
+
+.slide-body p { margin: 0 0 var(--sp-4); text-wrap: pretty; }
+.slide-body h3 {
+  font-size: var(--fs-sec); color: var(--ink-strong);
+  margin: 0 0 var(--sp-4);
+}
+
+/* [3.7] 中文没有真斜体：em/i 一律禁用合成斜体，改着重号 */
+.slide-body em, .slide-body i {
+  font-style: normal;
+  text-emphasis: filled dot var(--purple-600);
+  text-emphasis-position: under right;
+}
+
+.slide-body ul {
+  padding-left: 1.1em;
+  display: flex; flex-direction: column; gap: var(--sp-3);
+}
+.slide-body li { line-height: 1.5; text-wrap: pretty; }
+.slide-body ul ul {
+  margin-top: var(--sp-2);                 /* [2.2] 区块内小间距 */
+  padding-left: .9em; gap: var(--sp-2);
+}
+
+a { color: var(--purple-600); text-decoration: underline; text-underline-offset: .12em; }
+code {
+  background: #F4F2FA; border: 1px solid #E3DEF2; border-radius: var(--sp-1);
+  padding: .05em .35em; font-size: .85em;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+/* ---------- ✦ AIGC 水印卡 [标签级圆角 4px，四] ---------- */
+.aigc {
+  display: inline-block;
+  background: var(--lavender);
+  color: var(--purple-700);
+  padding: .08em .45em; border-radius: var(--sp-1);
+  font-weight: var(--w-mark);
+}
+.aigc::before { content: "✦ "; }
+p.callout { margin: var(--sp-4) 0 0 2px; }
+li.callout-item { list-style: disc; }
+
+/* ---------- [[...]] 图片占位卡 [卡片级圆角 10px，四] ---------- */
+.imgph {
+  margin: var(--sp-4) 0;
+  padding: var(--sp-4) var(--sp-6);
+  border: 2px dashed var(--dash);
+  background: var(--lavender-2);
+  color: var(--ph-text);
+  border-radius: 10px;
+  display: inline-flex; align-items: center; gap: var(--sp-3);
+  font-size: var(--fs-note); line-height: 1.5;   /* [1.4] 注释级 20px 起步 */
+  max-width: 100%;
+}
+.ph-ico {
+  width: 30px; height: 24px; flex: none;
+  border: 2px solid #9C90CC; border-radius: 4px;
+  position: relative; overflow: hidden; background: #F1EDFA;
+}
+.ph-ico::before {
+  content: ""; position: absolute; left: 3px; top: 12px;
+  border-left: 6px solid transparent; border-right: 6px solid transparent;
+  border-bottom: 9px solid #9C90CC;
+}
+.ph-ico::after {
+  content: ""; position: absolute; right: 4px; top: 4px;
+  width: 5px; height: 5px; border-radius: 50%; background: #9C90CC;
+}
+span.ph {
+  display: inline-block;
+  border: 1.5px dashed var(--dash); border-radius: var(--sp-1);
+  background: var(--lavender-2); color: var(--ph-text);
+  padding: 0 .3em; font-size: .92em;
+}
+
+/* ---------- 展示数学（拉丁数学惯例用斜体，不属中文伪斜体） ---------- */
+.math {
+  font-family: Georgia, "Times New Roman", "Noto Serif SC", serif;
+  font-style: italic;
+  white-space: nowrap;
+}
+.math.math-d { display: inline-block; padding: 0 var(--sp-1); }
+.math-display {
+  font-family: Georgia, "Times New Roman", "Noto Serif SC", serif;
+  font-style: italic;
+  font-size: var(--fs-sec);
+  text-align: center;
+  margin: var(--sp-4) 0;
+  color: var(--ink-strong);
+}
+
+/* ---------- 封面 / 封底（方言 A 备用）[1.4] 封面主标题 72～96 → 76px ---------- */
+.slide.cover {
+  background: linear-gradient(135deg, #443B70 0%, #6B60A5 55%, #9488C8 100%);
+  align-items: center; justify-content: center; text-align: center;
+}
+.cover h1 {
+  color: #fff; font-size: 76px; font-weight: var(--w-head);
+  line-height: 1.15; letter-spacing: .02em; margin-bottom: var(--sp-4);
+}
+.cover .cover-sub { color: rgba(255, 255, 255, .82); font-size: var(--fs-body); }
+.cover::after {
+  content: "✦"; position: absolute; right: -50px; bottom: -130px;
+  font-size: 420px; line-height: 1; color: rgba(255, 255, 255, .06);
+  pointer-events: none;
+}
+.cover .pageno { display: none; }
+
+/* ---------- 页码 [1.4] 注释级 20px ---------- */
+.pageno {
+  position: absolute; right: 18px; bottom: 12px;
+  font-size: var(--fs-note); line-height: 1.5;
+  color: var(--t3);
+}
+
+/* ---------- 分步显示 [1.5]：状态在外面，动效包进 no-preference ---------- */
+.fragment { opacity: 0; transform: translateY(6px); }
+.fragment.shown { opacity: 1; transform: none; }   /* 终态（状态规则，不依赖动效偏好） */
+@media (prefers-reduced-motion: no-preference) {
+  .slide.active { animation: fadein .18s ease; }
+  .fragment { transition: opacity .25s ease, transform .25s ease; }
+}
+
+/* ---------- 总览模式（O） ---------- */
+body.overview { background: #1B1A20; }
+.overview .stage {
+  position: static; width: auto; height: auto;
+  box-shadow: none; background: transparent;
+  display: block;
+}
+.overview .slide {
+  display: block !important;
+  transform-origin: 0 0;
+  cursor: pointer;
+  border-radius: 4px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .5);
+  outline: 3px solid transparent;
+}
+.overview .slide.current { outline-color: #A99BDD; }
+.overview .fragment { opacity: 1 !important; transform: none !important; }
+
+/* ---------- 操作提示条（浮层 UI，14px 为界面字，非幻灯片正文） ---------- */
+.helpbar {
+  position: fixed; left: 14px; bottom: 12px; z-index: 50;
+  color: rgba(255, 255, 255, .85); font-size: 14px;
+  background: rgba(0, 0, 0, .55); padding: 6px 12px; border-radius: 20px;
+  pointer-events: none; transition: opacity .8s;
+}
+.helpbar.fade { opacity: 0; }
+
+/* ---------- 打印 / 导出 PDF [1.7] ---------- */
+@page { size: 1280px 720px; margin: 0; }
+@media print {
+  body { background: #fff; overflow: visible; }
+  .viewport { position: static; display: block; }
+  .stage { transform: none !important; width: auto; height: auto; box-shadow: none; }
+  .slide {
+    display: flex !important; position: relative;
+    width: var(--stage-w); height: var(--stage-h);
+    break-after: page; page-break-after: always;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .slide:last-child { break-after: auto; page-break-after: auto; }
+  .fragment { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .slide { animation: none !important; }   /* 打印快照不catch入场中态 */
+  .helpbar { display: none; }
+}

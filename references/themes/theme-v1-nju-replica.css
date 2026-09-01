@@ -1,0 +1,236 @@
+/* ============================================================
+   mdshow theme — 「紫罗兰讲台」
+   1:1 复刻 jyy GenSE slides.html 视觉：
+   紫渐变标题栏 / ✦ 金句卡 / 虚线图片占位卡 / 右下角页码
+   改配色只需改这里 :root 的变量，不用动 Python 脚本。
+   ============================================================ */
+
+:root {
+  --purple-900: #3E3663;
+  --purple-700: #54497F;
+  --purple-600: #6A5FA8;
+  --purple-500: #7C71B5;
+  --purple-300: #B3A9D6;
+  --lavender:   #EFEAF8;   /* 金句卡底色 */
+  --lavender-2: #FBFAFE;   /* 占位卡底色 */
+  --dash:       #C3B7E6;   /* 占位卡虚线 */
+  --ink:        #333333;
+  --ink-strong: #1F1F24;
+  --muted:      #9A9AA2;
+  --stage-w: 1280px;
+  --stage-h: 720px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+
+body {
+  background: #232228;
+  font-family: "Noto Sans SC", "Source Han Sans SC", "PingFang SC",
+               "Microsoft YaHei", "WenQuanYi Zen Hei", sans-serif;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- 舞台：1280x720 等比缩放 ---------- */
+.viewport {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.stage {
+  width: var(--stage-w); height: var(--stage-h);
+  position: relative; flex: none;
+  background: #fff;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, .45);
+}
+
+/* ---------- 幻灯片基体 ---------- */
+.slide {
+  position: absolute; inset: 0;
+  background: #fff;
+  display: none; flex-direction: column;
+  overflow: hidden;
+}
+.slide.active { display: flex; animation: fadein .18s ease; }
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---------- 内容页：紫渐变标题栏 ---------- */
+.slide-header {
+  flex: none; height: 64px; padding: 0 30px;
+  display: flex; align-items: center;
+  background: linear-gradient(95deg, #4C4378 0%, #6C62A6 55%, #9186C4 100%);
+}
+.slide-header h2 {
+  color: #fff; font-size: 26px; font-weight: 700; letter-spacing: .5px;
+}
+
+.slide-body {
+  flex: 1; padding: 34px 44px;
+  font-size: 20px; line-height: 1.55; color: var(--ink);
+  overflow: hidden;
+}
+
+/* ---------- 正文元素 ---------- */
+.slide-body h3 {
+  font-size: 22px; color: var(--ink-strong);
+  margin: 2px 0 16px;
+}
+.slide-body p { margin: 0 0 12px; }
+
+/* 页内小节标题（方言 B：每页 1-2 个 ##） */
+.slide-body h2.sec {
+  font-size: 24px; font-weight: 700; color: var(--ink-strong);
+  margin: 4px 0 16px;
+}
+.slide-body h2.sec:not(:first-child) { margin-top: 30px; }
+
+.slide-body ul {
+  padding-left: 26px;
+  display: flex; flex-direction: column; gap: 11px;
+}
+.slide-body li { line-height: 1.5; }
+.slide-body ul ul {
+  margin-top: 9px; padding-left: 22px; gap: 8px;
+}
+
+/* ---------- 数学（轻量排版：$...$ / $$...$$） ---------- */
+.math {
+  font-family: Georgia, "Times New Roman", "Noto Serif SC", serif;
+  font-style: italic;
+  white-space: nowrap;
+}
+.math.math-d {
+  display: inline-block;
+  padding: 0 4px;
+}
+.math-display {
+  font-family: Georgia, "Times New Roman", "Noto Serif SC", serif;
+  font-style: italic;
+  font-size: 24px;
+  text-align: center;
+  margin: 20px 0;
+  color: var(--ink-strong);
+}
+
+a { color: var(--purple-600); text-decoration: underline; text-underline-offset: 3px; }
+code {
+  background: #F4F2FA; border: 1px solid #E3DEF2; border-radius: 4px;
+  padding: 1px 6px; font-size: .9em;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+/* ---------- ✦ AIGC 水印卡 ----------
+   tu07 揭示的真实语义：<span class="aigc"> = AI 生成内容标记。
+   人写的文本是普通 bullet；Agent 新增的一切文本都包进 aigc span，
+   渲染为 ✦ 淡紫高亮，观众一眼可辨每句话的作者。
+   （“- > ” 列表内金句卡渲染时也统一为 .aigc） */
+.aigc {
+  display: inline-block;
+  background: var(--lavender);
+  color: var(--purple-700);
+  padding: 3px 12px; border-radius: 3px;
+  font-weight: 600;
+}
+.aigc::before { content: "✦ "; }
+p.callout { margin: 14px 0 0 2px; }
+li.callout-item { list-style: disc; }
+
+/* ---------- [[...]] 图片占位卡 ---------- */
+.imgph {
+  margin: 18px 0;
+  padding: 16px 22px;
+  border: 2px dashed var(--dash);
+  background: var(--lavender-2);
+  color: #7E72B2;
+  border-radius: 8px;
+  display: inline-flex; align-items: center; gap: 12px;
+  font-size: 18px; max-width: 100%;
+}
+.ph-ico {
+  width: 30px; height: 24px; flex: none;
+  border: 2px solid #9C90CC; border-radius: 4px;
+  position: relative; overflow: hidden; background: #F1EDFA;
+}
+.ph-ico::before {           /* 山 */
+  content: ""; position: absolute; left: 3px; top: 12px;
+  border-left: 6px solid transparent; border-right: 6px solid transparent;
+  border-bottom: 9px solid #9C90CC;
+}
+.ph-ico::after {            /* 太阳 */
+  content: ""; position: absolute; right: 4px; top: 4px;
+  width: 5px; height: 5px; border-radius: 50%; background: #9C90CC;
+}
+span.ph {
+  display: inline-block;
+  border: 1.5px dashed var(--dash); border-radius: 4px;
+  background: var(--lavender-2); color: #7E72B2;
+  padding: 0 8px; font-size: .92em;
+}
+
+/* ---------- 封面 / 封底 ---------- */
+.slide.cover {
+  background: linear-gradient(135deg, #443B70 0%, #6B60A5 55%, #9488C8 100%);
+  align-items: center; justify-content: center; text-align: center;
+}
+.cover h1 {
+  color: #fff; font-size: 52px; font-weight: 700;
+  letter-spacing: 2px; margin-bottom: 20px;
+}
+.cover .cover-sub { color: rgba(255, 255, 255, .82); font-size: 22px; }
+.cover::after {              /* 右下角大 ✦ 水印 */
+  content: "✦"; position: absolute; right: -50px; bottom: -130px;
+  font-size: 420px; line-height: 1; color: rgba(255, 255, 255, .06);
+  pointer-events: none;
+}
+.cover .pageno { display: none; }
+
+/* ---------- 页码 ---------- */
+.pageno {
+  position: absolute; right: 18px; bottom: 12px;
+  font-size: 14px; color: var(--muted);
+}
+
+/* ---------- 分步显示（fragment） ---------- */
+.fragment { opacity: 0; transform: translateY(6px); transition: opacity .25s ease, transform .25s ease; }
+.fragment.shown { opacity: 1; transform: none; }
+
+/* ---------- 总览模式（O） ---------- */
+body.overview { background: #1B1A20; }
+.overview .stage {
+  position: static; width: auto; height: auto;
+  box-shadow: none; background: transparent;
+  display: block;
+}
+.overview .slide {
+  display: block !important;
+  transform-origin: 0 0;
+  cursor: pointer;
+  border-radius: 4px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .5);
+  outline: 3px solid transparent;
+}
+.overview .slide.current { outline-color: #A99BDD; }
+.overview .fragment { opacity: 1 !important; transform: none !important; }
+
+/* ---------- 操作提示条 ---------- */
+.helpbar {
+  position: fixed; left: 14px; bottom: 12px; z-index: 50;
+  color: rgba(255, 255, 255, .55); font-size: 13px;
+  background: rgba(0, 0, 0, .35); padding: 6px 12px; border-radius: 20px;
+  pointer-events: none; transition: opacity .8s;
+}
+.helpbar.fade { opacity: 0; }
+
+/* ---------- 打印 / 导出 PDF ---------- */
+@media print {
+  body { background: #fff; overflow: visible; }
+  .viewport { position: static; display: block; }
+  .stage { transform: none !important; width: auto; height: auto; box-shadow: none; }
+  .slide {
+    display: flex !important; position: relative;
+    width: var(--stage-w); height: var(--stage-h);
+    page-break-after: always; break-after: page;
+  }
+  .fragment { opacity: 1 !important; transform: none !important; }
+  .helpbar { display: none; }
+}

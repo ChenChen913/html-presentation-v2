@@ -1,0 +1,349 @@
+/* ============================================================
+   mdshow theme v5 —— 「瑞士图则」（Swiss Blueprint / 国际主义排版）
+   v5 的分野：严格直角（全稿 0 圆角）、细线骨架、克莱因蓝单强调、
+   等宽数字编号系统（右上角 NN / NN + 题号前缀）、留白呼吸感。
+   与 v2（同为浅色无衬线）的区别：v2 是渐变色块 + 圆角卡片的柔和
+   商务感；v5 是 hairline + 直角 + 大写字距标签的工程图纸感。
+   v1 / v2 / v3 / v4 主题原样保留，本文件只服务 v5 演示稿。
+
+   规则溯源（对照《中文 PPT 与网页设计调研笔记》章节）：
+   [1.1]  画布 1280×720 全 token
+   [1.2]  安全边距：上下 36px（5%），左右 76px（6%，瑞士式宽留白）
+   [1.4]  字号梯度：页标题 48（40～48 档顶格，瑞士式大标题）/
+          小节 30 / 正文 28 / 注释 20
+   [1.4]  字重只用 400/600/700
+   [3.3]  配色公式：中性打底 + 单强调；色数 = 白(底/中性) + 墨黑(文字)
+          + 克莱因蓝(强调) = 3 色封顶；黑白灰是中文用户最大公约数（祝诗扬等 2022）
+   [2.5]  对比度程序实测（scripts/verify/contrast_calc_v45.py）：
+          墨黑 17.40 / 克莱因蓝 8.49 / 辅助灰 5.33 / aigc 7.93
+   [3.7]  中文无真斜体 → em/i 着重号（蓝点）
+   [3.7]  避头尾 line-break: strict；word-break: normal
+   [3.7]  字间距只加标题与大写标签（正文零字距，保持汉字节奏）
+   [2.7]  无衬线系统栈零加载（与 v2 同族栈，气质靠版式而非字体区分）
+   [2.8雷1] 辅助文字 ≥ #767676 下限：#6B6B6B 实测 5.33:1
+   [四]   反 AI slop：标题 text-wrap: balance；圆角反着来——全稿直角
+          本身就是强风格化选择（图纸/印品语言），卡片用 hairline 描边分层
+   [1.5]  动效包进 prefers-reduced-motion: no-preference
+   [1.7]  导出：@page 1280×720 + 逐页分页 + fragment 终态兜底 + print-color-adjust
+   ============================================================ */
+
+:root {
+  /* —— 色板：白 + 墨 + 克莱因蓝（三色封顶 [3.3]，实测见文件头）—— */
+  --paper:    #FFFFFF;   /* 纯白底（瑞士风允诺纯白；装饰线用灰阶建立层次） */
+  --ink:      #1A1A1A;   /* 墨黑 17.40:1 */
+  --ink-2nd:  #6B6B6B;   /* 辅助灰（页码/标签/注释）5.33:1 ≥ #767676 临界 [2.8雷1] */
+  --blue:     #2438C8;   /* 克莱因蓝 8.49:1（强调唯一载体） */
+  --blue-soft:#E9EDFB;   /* aigc 浅蓝底 */
+  --blue-deep:#1E3CA8;   /* aigc 深蓝字 7.93:1 */
+  --hairline: #D9D9D5;   /* 细线（装饰） */
+  --rule-dark:#1A1A1A;   /* 标题下墨线（装饰） */
+  --code-bg:  #F2F2EE;   /* 代码底 */
+  --code-fg:  #33322E;   /* 代码字 */
+  --ph-bg:    #F1F1EE;   /* 占位卡底 */
+  --ph-fg:    #4A4A96;   /* 占位卡字 6.84:1 */
+
+  /* —— 字号 token [1.4] —— */
+  --fs-title: 48px;      /* 40～48 档顶格 */
+  --fs-sec:   30px;
+  --fs-body:  28px;
+  --fs-note:  20px;
+
+  /* —— 字重档 [1.4] —— */
+  --w-body: 400;
+  --w-mark: 600;
+  --w-head: 700;
+
+  /* —— 间距 token [2.2] —— */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-6: 24px; --sp-8: 32px; --sp-12: 48px;
+
+  --stage-w: 1280px;
+  --stage-h: 720px;
+  --pad-y: 36px;
+  --pad-x: 76px;
+  --header-h: 128px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+
+body {
+  background: #2B2B2E;
+  /* 无衬线系统栈 [2.7]（同 v2 族） */
+  font-family: system-ui, -apple-system, "Segoe UI", "PingFang SC",
+               "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC",
+               "Noto Sans CJK SC", sans-serif;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- 舞台 [1.1] ---------- */
+.viewport {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.stage {
+  width: var(--stage-w); height: var(--stage-h);
+  position: relative; flex: none;
+  background: var(--paper);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, .5);
+}
+
+/* ---------- 幻灯片基体 ---------- */
+.slide {
+  position: absolute; inset: 0;
+  background: var(--paper);
+  display: none; flex-direction: column;
+  overflow: hidden;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.slide.active { display: flex; }
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---------- 内容页：瑞士图头 ---------- */
+.slide-header {
+  flex: none; height: var(--header-h); padding: 0 var(--pad-x);
+  display: flex; align-items: center;
+  position: relative;
+  border-bottom: 2px solid var(--rule-dark);       /* 图头墨线 */
+}
+.slide-header::after {                             /* 右上角图纸注册标（纯装饰方块；
+   注：不能用 counter(pages)——display:none 页不参与计数，v3 同款教训） */
+  content: "";
+  position: absolute; right: var(--pad-x); top: 36px;
+  width: 12px; height: 12px;
+  background: var(--blue);
+}
+.slide-header h2 {
+  color: var(--ink);
+  font-size: var(--fs-title); font-weight: var(--w-head);
+  line-height: 1.2;                                /* [1.4] 标题行高 1.15～1.25 */
+  letter-spacing: .01em;
+  text-wrap: balance;
+  padding-left: 22px;
+  border-left: 6px solid var(--blue);              /* 克莱因蓝竖标（v5 签名） */
+}
+.slide-header h2::before {                         /* 题号：纯数字（蓝色等宽，引擎 data-sec）；
+   原 § 前缀为西文法律引用符号，中文标题标号不宜用，已删（用户反馈 + 调研 2026-09） */
+  content: attr(data-sec);
+  display: inline-block;
+  color: var(--blue);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .04em;
+  margin-right: 14px;
+  transform: translateY(-6px);                     /* 瑞士风大数字：略上提与标题 cap 线对齐 */
+  font-size: 40px;                                 /* 接近标题（48px）的 5/6：题号本身即视觉锚点 */
+  font-weight: var(--w-mark);
+}
+
+.slide-body {
+  flex: 1; padding: var(--sp-8) var(--pad-x) var(--pad-y);
+  font-size: var(--fs-body); font-weight: var(--w-body);
+  line-height: 1.7;                                /* [2.8雷10] 中文正文 1.7～1.8 */
+  color: var(--ink);
+  overflow: hidden;
+  word-break: normal;
+  overflow-wrap: break-word;
+  line-break: strict;
+}
+
+/* ---------- 正文元素 ---------- */
+.slide-body h2.sec {
+  font-size: var(--fs-sec); font-weight: var(--w-head);
+  line-height: 1.3; color: var(--ink);
+  margin: 0 0 var(--sp-3);
+  text-wrap: balance;
+}
+.slide-body h2.sec:not(:first-child) { margin-top: var(--sp-8); }
+
+.slide-body p { margin: 0 0 var(--sp-4); text-wrap: pretty; }
+.slide-body h3 {
+  font-size: var(--fs-sec); color: var(--ink);
+  margin: 0 0 var(--sp-4);
+}
+
+/* [3.7] 中文禁伪斜体：em/i 改克莱因蓝着重号 */
+.slide-body em, .slide-body i {
+  font-style: normal;
+  text-emphasis: filled dot var(--blue);
+  text-emphasis-position: under right;
+}
+
+/* 瑞士列表：无符号 + 蓝色短横线引导（线条式，非几何符） */
+.slide-body ul {
+  padding-left: 0;
+  list-style: none;
+}
+.slide-body li { line-height: 1.7; text-wrap: pretty; position: relative; padding-left: 1.3em; }
+.slide-body li + li { margin-top: var(--sp-2); }
+.slide-body li::before {
+  content: "";
+  position: absolute; left: 0; top: .78em;
+  width: .7em; height: 3px;
+  background: var(--blue);
+}
+.slide-body ul ul {
+  margin-top: var(--sp-1);
+}
+.slide-body ul ul li::before {
+  width: .5em; height: 2px;
+  background: var(--hairline);
+}
+
+a { color: var(--blue); text-decoration: underline; text-underline-offset: .14em; }
+code {
+  background: var(--code-bg); border: 1px solid var(--hairline); border-radius: 0;
+  padding: .05em .35em; font-size: .82em; color: var(--code-fg);
+  font-family: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+/* ---------- ✦ AIGC 水印卡：浅蓝底直角色（语义与 v1–v4 一致）
+   display:inline（inline-block 基线语义会把 marker 拉到卡片第二行，v3 已证） */
+.aigc {
+  display: inline;
+  background: var(--blue-soft);
+  color: var(--blue-deep);
+  padding: .1em .4em; border-radius: 0;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  font-weight: var(--w-mark);
+}
+.aigc::before { content: "✦ "; color: var(--blue); }
+p.callout { margin: var(--sp-4) 0 0 0; }
+li.callout-item::before { width: .7em; }
+
+/* ---------- [[...]] 图片占位卡：hairline 直角框 ---------- */
+.imgph {
+  margin: var(--sp-4) 0;
+  padding: var(--sp-4) var(--sp-6);
+  border: 1.5px dashed var(--ink-2nd);
+  background: var(--ph-bg);
+  color: var(--ph-fg);
+  border-radius: 0;
+  display: inline-flex; align-items: center; gap: var(--sp-3);
+  font-size: var(--fs-note); line-height: 1.5;
+  max-width: 100%;
+}
+.ph-ico {
+  width: 30px; height: 24px; flex: none;
+  border: 2px solid var(--ph-fg); border-radius: 0;
+  position: relative; overflow: hidden; background: var(--paper);
+}
+.ph-ico::before {
+  content: ""; position: absolute; left: 3px; top: 12px;
+  border-left: 6px solid transparent; border-right: 6px solid transparent;
+  border-bottom: 9px solid var(--ph-fg);
+}
+.ph-ico::after {
+  content: ""; position: absolute; right: 4px; top: 4px;
+  width: 5px; height: 5px; border-radius: 0; background: var(--ph-fg);
+}
+span.ph {
+  display: inline;
+  border: 1.5px dashed var(--ink-2nd); border-radius: 0;
+  background: var(--ph-bg); color: var(--ph-fg);
+  padding: 0 .3em; font-size: .92em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* ---------- 数学（拉丁惯例斜体） ---------- */
+.math {
+  font-family: Georgia, "Times New Roman", "Noto Serif SC", serif;
+  font-style: italic;
+  white-space: nowrap;
+}
+.math.math-d { display: inline-block; padding: 0 var(--sp-1); }
+.math-display {
+  font-family: Georgia, "Times New Roman", "Noto Serif SC", serif;
+  font-style: italic;
+  font-size: var(--fs-sec);
+  text-align: center;
+  margin: var(--sp-4) 0;
+  color: var(--ink);
+}
+
+/* ---------- 封面 / 封底（方言 A 备用）：白面蓝线 ---------- */
+.slide.cover {
+  background: var(--paper);
+  align-items: center; justify-content: center; text-align: center;
+}
+.cover h1 {
+  color: var(--ink); font-size: 76px; font-weight: var(--w-head);
+  line-height: 1.15; letter-spacing: .02em; margin-bottom: var(--sp-4);
+  text-wrap: balance;
+}
+.cover .cover-sub {
+  color: var(--ink-2nd); font-size: var(--fs-body);
+  letter-spacing: .28em; text-transform: uppercase;
+}
+.cover::after {
+  content: ""; position: absolute; left: 50%; bottom: 70px;
+  transform: translateX(-50%);
+  width: 64px; height: 6px; background: var(--blue);
+  pointer-events: none;
+}
+.cover .pageno { display: none; }
+
+/* ---------- 页码：右下等宽数字（与右上编号呼应，注释级 20px） ---------- */
+.pageno {
+  position: absolute; right: 22px; bottom: 24px;
+  font-size: var(--fs-note); line-height: 1.5;
+  color: var(--ink-2nd);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .06em;
+}
+
+/* ---------- 分步显示 [1.5] ---------- */
+.fragment { opacity: 0; transform: translateY(6px); }
+.fragment.shown { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .slide.active { animation: fadein .18s ease; }
+  .fragment { transition: opacity .25s ease, transform .25s ease; }
+}
+
+/* ---------- 总览模式（O） ---------- */
+body.overview { background: #2B2B2E; }
+.overview .stage {
+  position: static; width: auto; height: auto;
+  box-shadow: none; background: transparent;
+  display: block;
+}
+.overview .slide {
+  display: block !important;
+  transform-origin: 0 0;
+  cursor: pointer;
+  border-radius: 0;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .5);
+  outline: 3px solid transparent;
+}
+.overview .slide.current { outline-color: var(--blue); }
+.overview .fragment { opacity: 1 !important; transform: none !important; }
+
+/* ---------- 操作提示条 ---------- */
+.helpbar {
+  position: fixed; left: 14px; bottom: 12px; z-index: 50;
+  color: rgba(255, 255, 255, .88); font-size: 14px;
+  background: rgba(0, 0, 0, .6); padding: 6px 12px; border-radius: 20px;
+  pointer-events: none; transition: opacity .8s;
+}
+.helpbar.fade { opacity: 0; }
+
+/* ---------- 打印 / 导出 PDF [1.7] ---------- */
+@page { size: 1280px 720px; margin: 0; }
+@media print {
+  body { background: #fff; overflow: visible; }
+  .viewport { position: static; display: block; }
+  .stage { transform: none !important; width: auto; height: auto; box-shadow: none; }
+  .slide {
+    display: flex !important; position: relative;
+    width: var(--stage-w); height: var(--stage-h);
+    break-after: page; page-break-after: always;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .slide:last-child { break-after: auto; page-break-after: auto; }
+  .fragment { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .slide { animation: none !important; }
+  .helpbar { display: none; }
+}

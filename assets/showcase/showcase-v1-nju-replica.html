@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="mdshow">
+<title>A Bold Experiment · mdshow</title>
+<style>
+/* ============================================================
+   mdshow theme — 「紫罗兰讲台」
+   1:1 复刻 jyy GenSE slides.html 视觉：
+   紫渐变标题栏 / ✦ 金句卡 / 虚线图片占位卡 / 右下角页码
+   改配色只需改这里 :root 的变量，不用动 Python 脚本。
+   ============================================================ */
+
+:root {
+  --purple-900: #3E3663;
+  --purple-700: #54497F;
+  --purple-600: #6A5FA8;
+  --purple-500: #7C71B5;
+  --purple-300: #B3A9D6;
+  --lavender:   #EFEAF8;   /* 金句卡底色 */
+  --lavender-2: #FBFAFE;   /* 占位卡底色 */
+  --dash:       #C3B7E6;   /* 占位卡虚线 */
+  --ink:        #333333;
+  --ink-strong: #1F1F24;
+  --muted:      #9A9AA2;
+  --stage-w: 1280px;
+  --stage-h: 720px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+
+body {
+  background: #232228;
+  font-family: "Noto Sans SC", "Source Han Sans SC", "PingFang SC",
+               "Microsoft YaHei", "WenQuanYi Zen Hei", sans-serif;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- 舞台：1280x720 等比缩放 ---------- */
+.viewport {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.stage {
+  width: var(--stage-w); height: var(--stage-h);
+  position: relative; flex: none;
+  background: #fff;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, .45);
+}
+
+/* ---------- 幻灯片基体 ---------- */
+.slide {
+  position: absolute; inset: 0;
+  background: #fff;
+  display: none; flex-direction: column;
+  overflow: hidden;
+}
+.slide.active { display: flex; animation: fadein .18s ease; }
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---------- 内容页：紫渐变标题栏 ---------- */
+.slide-header {
+  flex: none; height: 64px; padding: 0 30px;
+  display: flex; align-items: center;
+  background: linear-gradient(95deg, #4C4378 0%, #6C62A6 55%, #9186C4 100%);
+}
+.slide-header h2 {
+  color: #fff; font-size: 26px; font-weight: 700; letter-spacing: .5px;
+}
+
+.slide-body {
+  flex: 1; padding: 34px 44px;
+  font-size: 20px; line-height: 1.55; color: var(--ink);
+  overflow: hidden;
+}
+
+/* ---------- 正文元素 ---------- */
+.slide-body h3 {
+  font-size: 22px; color: var(--ink-strong);
+  margin: 2px 0 16px;
+}
+.slide-body p { margin: 0 0 12px; }
+
+/* 页内小节标题（方言 B：每页 1-2 个 ##） */
+.slide-body h2.sec {
+  font-size: 24px; font-weight: 700; color: var(--ink-strong);
+  margin: 4px 0 16px;
+}
+.slide-body h2.sec:not(:first-child) { margin-top: 30px; }
+
+.slide-body ul {
+  padding-left: 26px;
+  display: flex; flex-direction: column; gap: 11px;
+}
+.slide-body li { line-height: 1.5; }
+.slide-body ul ul {
+  margin-top: 9px; padding-left: 22px; gap: 8px;
+}
+
+/* ---------- 数学（轻量排版：$...$ / $$...$$） ---------- */
+.math {
+  font-family: Georgia, "Times New Roman", "Noto Serif SC", serif;
+  font-style: italic;
+  white-space: nowrap;
+}
+.math.math-d {
+  display: inline-block;
+  padding: 0 4px;
+}
+.math-display {
+  font-family: Georgia, "Times New Roman", "Noto Serif SC", serif;
+  font-style: italic;
+  font-size: 24px;
+  text-align: center;
+  margin: 20px 0;
+  color: var(--ink-strong);
+}
+
+a { color: var(--purple-600); text-decoration: underline; text-underline-offset: 3px; }
+code {
+  background: #F4F2FA; border: 1px solid #E3DEF2; border-radius: 4px;
+  padding: 1px 6px; font-size: .9em;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+/* ---------- ✦ AIGC 水印卡 ----------
+   tu07 揭示的真实语义：<span class="aigc"> = AI 生成内容标记。
+   人写的文本是普通 bullet；Agent 新增的一切文本都包进 aigc span，
+   渲染为 ✦ 淡紫高亮，观众一眼可辨每句话的作者。
+   （“- > ” 列表内金句卡渲染时也统一为 .aigc） */
+.aigc {
+  display: inline-block;
+  background: var(--lavender);
+  color: var(--purple-700);
+  padding: 3px 12px; border-radius: 3px;
+  font-weight: 600;
+}
+.aigc::before { content: "✦ "; }
+p.callout { margin: 14px 0 0 2px; }
+li.callout-item { list-style: disc; }
+
+/* ---------- [[...]] 图片占位卡 ---------- */
+.imgph {
+  margin: 18px 0;
+  padding: 16px 22px;
+  border: 2px dashed var(--dash);
+  background: var(--lavender-2);
+  color: #7E72B2;
+  border-radius: 8px;
+  display: inline-flex; align-items: center; gap: 12px;
+  font-size: 18px; max-width: 100%;
+}
+.ph-ico {
+  width: 30px; height: 24px; flex: none;
+  border: 2px solid #9C90CC; border-radius: 4px;
+  position: relative; overflow: hidden; background: #F1EDFA;
+}
+.ph-ico::before {           /* 山 */
+  content: ""; position: absolute; left: 3px; top: 12px;
+  border-left: 6px solid transparent; border-right: 6px solid transparent;
+  border-bottom: 9px solid #9C90CC;
+}
+.ph-ico::after {            /* 太阳 */
+  content: ""; position: absolute; right: 4px; top: 4px;
+  width: 5px; height: 5px; border-radius: 50%; background: #9C90CC;
+}
+span.ph {
+  display: inline-block;
+  border: 1.5px dashed var(--dash); border-radius: 4px;
+  background: var(--lavender-2); color: #7E72B2;
+  padding: 0 8px; font-size: .92em;
+}
+
+/* ---------- 封面 / 封底 ---------- */
+.slide.cover {
+  background: linear-gradient(135deg, #443B70 0%, #6B60A5 55%, #9488C8 100%);
+  align-items: center; justify-content: center; text-align: center;
+}
+.cover h1 {
+  color: #fff; font-size: 52px; font-weight: 700;
+  letter-spacing: 2px; margin-bottom: 20px;
+}
+.cover .cover-sub { color: rgba(255, 255, 255, .82); font-size: 22px; }
+.cover::after {              /* 右下角大 ✦ 水印 */
+  content: "✦"; position: absolute; right: -50px; bottom: -130px;
+  font-size: 420px; line-height: 1; color: rgba(255, 255, 255, .06);
+  pointer-events: none;
+}
+.cover .pageno { display: none; }
+
+/* ---------- 页码 ---------- */
+.pageno {
+  position: absolute; right: 18px; bottom: 12px;
+  font-size: 14px; color: var(--muted);
+}
+
+/* ---------- 分步显示（fragment） ---------- */
+.fragment { opacity: 0; transform: translateY(6px); transition: opacity .25s ease, transform .25s ease; }
+.fragment.shown { opacity: 1; transform: none; }
+
+/* ---------- 总览模式（O） ---------- */
+body.overview { background: #1B1A20; }
+.overview .stage {
+  position: static; width: auto; height: auto;
+  box-shadow: none; background: transparent;
+  display: block;
+}
+.overview .slide {
+  display: block !important;
+  transform-origin: 0 0;
+  cursor: pointer;
+  border-radius: 4px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .5);
+  outline: 3px solid transparent;
+}
+.overview .slide.current { outline-color: #A99BDD; }
+.overview .fragment { opacity: 1 !important; transform: none !important; }
+
+/* ---------- 操作提示条 ---------- */
+.helpbar {
+  position: fixed; left: 14px; bottom: 12px; z-index: 50;
+  color: rgba(255, 255, 255, .55); font-size: 13px;
+  background: rgba(0, 0, 0, .35); padding: 6px 12px; border-radius: 20px;
+  pointer-events: none; transition: opacity .8s;
+}
+.helpbar.fade { opacity: 0; }
+
+/* ---------- 打印 / 导出 PDF ---------- */
+@media print {
+  body { background: #fff; overflow: visible; }
+  .viewport { position: static; display: block; }
+  .stage { transform: none !important; width: auto; height: auto; box-shadow: none; }
+  .slide {
+    display: flex !important; position: relative;
+    width: var(--stage-w); height: var(--stage-h);
+    page-break-after: always; break-after: page;
+  }
+  .fragment { opacity: 1 !important; transform: none !important; }
+  .helpbar { display: none; }
+}
+
+</style>
+</head>
+<body>
+<div class="viewport" id="viewport">
+  <div class="stage" id="stage">
+  <section class="slide content" data-i="1">
+    <header class="slide-header"><h2>A Bold Experiment</h2></header><div class="slide-body"><h2 class="sec">这学期的实验</h2><ul><li class="fragment">这门课的所有课件，都由讲义 + Agent 实时扩写生成<li class="fragment"><span class="aigc">讲义是我的逻辑线：Agent 只做延展，不许反驳、不许越过我的观点</span><li class="fragment"><span class="aigc">你看到的每一页都是构建产物：可以重新生成、可以 diff、可以回滚</span></ul></div>
+    <div class="pageno">1/6</div>
+  </section>
+  <section class="slide content" data-i="2">
+    <header class="slide-header"><h2>Text Is The Source Of Truth</h2></header><div class="slide-body"><h2 class="sec">文本是唯一事实源</h2><ul><li class="fragment">文本是 source of truth：文字讲义是唯一手工维护的东西<li class="fragment"><span class="aigc">图片、网页、视频切片等其他模态，全部视为 AIGC 产物</span><li class="fragment"><span class="aigc">改文字就是改源码：重新构建，所有模态随之更新</span></ul><h2 class="sec">为什么坚持文本</h2><ul><li class="fragment"><span class="aigc">像素无法 diff，录像无法 merge，二进制无法审阅</span><li class="fragment">文本可审阅：每一页都读得懂、改得动、管得住版本</ul></div>
+    <div class="pageno">2/6</div>
+  </section>
+  <section class="slide content" data-i="3">
+    <header class="slide-header"><h2>Everything is code</h2></header><div class="slide-body"><h2 class="sec">这套 slides 如何工作?</h2><ul><li class="fragment">文本是 source of truth：你看到的其他模态都是 AIGC<li class="fragment"><span class="aigc">完整讲义提供上下文 → 选中的 snippet 划定边界 → Agent 扩写 → Markdown slides → 浏览器渲染</span><li class="fragment"><span class="aigc">生成内容统一标记为 aigc：逻辑改变时修改源码，图片、网页和视频切片都可以重新生成</span></ul><h2 class="sec">要“永生”的不是一份录像</h2><ul><li class="fragment"><span class="aigc">保存可编辑、可 diff、可复现的源代码与构建过程，而不只是最终像素</span><li class="fragment">如果成功，就“永生”我的操作系统课</ul></div>
+    <div class="pageno">3/6</div>
+  </section>
+  <section class="slide content" data-i="4">
+    <header class="slide-header"><h2>The Make-Slides Skill</h2></header><div class="slide-body"><h2 class="sec">一个技能，两个输入</h2><ul><li class="fragment">讲义文件：完整读取，仅作上下文（FYI）<li class="fragment">snippet：我选中的一段逻辑线，<b>唯一</b>的成稿范围<li class="fragment"><span class="aigc">产物只有 markdown 片段：不生成封面，不生成致谢页</span></ul><h2 class="sec">三个专家子代理，逐页扇出</h2><ul><li class="fragment"><span class="aigc">历史钩沉：这门技术来路上的经验、教训与事故</span><li class="fragment"><span class="aigc">人文事实：在人类历史（而非仅在计算机科学）中寻找公认、高影响的关联工作</span><ul><li><span class="aigc">例如：从古登堡印刷术到晶体管，而不只是从 ENIAC 到 GPU</span></li></ul></li><li class="fragment"><span class="aigc">第一性原理：从本源重新推一遍，检验逻辑是否成立</span><li class="fragment"><span class="aigc">三路结果收敛成稿：禁止 trivial 总结——那些我课上会讲</span></ul></div>
+    <div class="pageno">4/6</div>
+  </section>
+  <section class="slide content" data-i="5">
+    <header class="slide-header"><h2>Aigc, Clearly Marked</h2></header><div class="slide-body"><h2 class="sec">水印规范</h2><ul><li class="fragment"><span class="aigc">Agent 新增的一切文本必须包进 span.aigc：观众有权知道每句话是谁写的</span><li class="fragment">小幅改写不打标：避免满屏 aigc，稀释水印的信息量<li class="fragment"><span class="aigc">标题永不打标：h1/h2 即使由 AI 生成，也保持素面</span></ul><h2 class="sec">硬性排版约束</h2><ul><li class="fragment">每页一个 h1 标题（Title Case），1-2 个 h2 小节<li class="fragment">每页 bullets 总数 ≤ 8；最多 1 张图，图大字少<li class="fragment"><span class="aigc">数学一律 <span class="math">inline</span> 与 <span class="math math-d">display</span>，落盘前逐条检查语法</span></ul></div>
+    <div class="pageno">5/6</div>
+  </section>
+  <section class="slide content" data-i="6">
+    <header class="slide-header"><h2>Immortality, Via Code</h2></header><div class="slide-body"><h2 class="sec">永生的三个条件</h2><ul><li class="fragment"><span class="aigc">可编辑：换一种讲法，改几行文本重新构建即可</span><li class="fragment"><span class="aigc">可 diff：两个学年的课件差异，就是一次 git diff</span><li class="fragment"><span class="aigc">可复现：源码与构建脚本还在，slides.html 随时重来</span></ul><h2 class="sec">这套课件的自我描述</h2><ul><li class="fragment">你正在看的这 6 页，本身就是 make-slides 方言的示范稿<li class="fragment">如果成功，就“永生”我的操作系统课</ul></div>
+    <div class="pageno">6/6</div>
+  </section>
+  </div>
+</div>
+<div class="helpbar" id="helpbar">←/→ 翻页 · 空格 下一步 · O 总览 · F 全屏 · 点击左右半屏翻页</div>
+<script>
+/* ============================================================
+   mdshow :: runtime — 放映交互
+   键盘 ←/→/空格 翻页 + 右下角页码（构建时静态生成）
+   O 总览网格 / F 全屏 / Esc 退出
+   点击左右半屏翻页 + 触屏滑动
+   分步显示：列表项/金句卡按 fragment 逐条浮现
+   ============================================================ */
+(function () {
+  "use strict";
+
+  var stage = document.getElementById("stage");
+  var viewport = document.getElementById("viewport");
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var N = slides.length;
+  var frags = slides.map(function (s) {
+    return Array.prototype.slice.call(s.querySelectorAll(".fragment"));
+  });
+
+  var cur = 0;      // 当前页下标
+  var shown = 0;    // 当前页已显示的 fragment 数
+  var overview = false;
+
+  function apply() {
+    slides.forEach(function (s, i) {
+      s.classList.toggle("active", i === cur);
+      s.classList.toggle("current", i === cur);
+    });
+    frags[cur].forEach(function (f, i) {
+      f.classList.toggle("shown", i < shown);
+    });
+    try { history.replaceState(null, "", "#/" + (cur + 1)); } catch (e) { /* file:// 下可能受限 */ }
+  }
+
+  function next() {
+    if (shown < frags[cur].length) { shown++; apply(); }
+    else if (cur < N - 1) { cur++; shown = 0; apply(); }
+  }
+
+  function prev() {
+    if (shown > 0) { shown--; apply(); }
+    else if (cur > 0) { cur--; shown = frags[cur].length; apply(); }
+  }
+
+  function jump(i) {
+    cur = Math.max(0, Math.min(N - 1, i));
+    shown = frags[cur].length;   // 跳转落地时展示整页
+    apply();
+  }
+
+  /* ---------- 等比缩放 1280x720 -> 视口 ---------- */
+  function fit() {
+    if (overview) { layoutOverview(); return; }
+    var s = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    stage.style.transform = "scale(" + s + ")";
+  }
+  window.addEventListener("resize", fit);
+
+  /* ---------- 总览模式 ---------- */
+  function layoutOverview() {
+    var vw = window.innerWidth, vh = window.innerHeight;
+    var cols = Math.ceil(Math.sqrt(N));
+    var rows = Math.ceil(N / cols);
+    var cw = vw / cols, ch = vh / rows;
+    var s = Math.min(cw / 1280, ch / 720) * 0.86;
+    slides.forEach(function (el, i) {
+      var c = i % cols, r = Math.floor(i / cols);
+      var x = c * cw + (cw - 1280 * s) / 2;
+      var y = r * ch + (ch - 720 * s) / 2;
+      el.style.transform = "translate(" + x + "px," + y + "px) scale(" + s + ")";
+    });
+  }
+
+  function setOverview(on) {
+    overview = on;
+    document.body.classList.toggle("overview", on);
+    if (on) {
+      stage.style.transform = "none";
+      layoutOverview();
+    } else {
+      slides.forEach(function (el) { el.style.transform = ""; });
+      fit();
+    }
+  }
+
+  /* ---------- 全屏 ---------- */
+  function toggleFullscreen() {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen();
+    }
+  }
+
+  /* ---------- 键盘 ---------- */
+  document.addEventListener("keydown", function (e) {
+    var k = e.key;
+    if (k === "ArrowRight" || k === "ArrowDown" || k === " " || k === "PageDown" || k === "Enter") {
+      e.preventDefault();
+      if (overview) { setOverview(false); } else { next(); }
+    } else if (k === "ArrowLeft" || k === "ArrowUp" || k === "PageUp") {
+      e.preventDefault();
+      if (overview) { setOverview(false); } else { prev(); }
+    } else if (k === "Home") {
+      if (overview) { setOverview(false); }
+      cur = 0; shown = 0; apply();
+    } else if (k === "End") {
+      if (overview) { setOverview(false); }
+      jump(N - 1);
+    } else if (k === "o" || k === "O") {
+      setOverview(!overview);
+    } else if (k === "f" || k === "F") {
+      toggleFullscreen();
+    } else if (k === "Escape") {
+      if (overview) { setOverview(false); }
+    }
+  });
+
+  /* ---------- 点击左右半屏翻页 ---------- */
+  viewport.addEventListener("click", function (e) {
+    if (overview) { return; }                 // 总览由 slide 自己的点击处理
+    if (e.target.closest && e.target.closest("a")) { return; }   // 链接放行
+    var ratio = e.clientX / window.innerWidth;
+    if (ratio < 0.3) { prev(); } else { next(); }
+  });
+
+  /* ---------- 总览里点击某页跳转 ---------- */
+  slides.forEach(function (el, i) {
+    el.addEventListener("click", function (e) {
+      if (!overview) { return; }
+      e.stopPropagation();
+      setOverview(false);
+      jump(i);
+    });
+  });
+
+  /* ---------- 触屏滑动 ---------- */
+  var touchX = null, touchY = null;
+  document.addEventListener("touchstart", function (e) {
+    touchX = e.touches[0].clientX;
+    touchY = e.touches[0].clientY;
+  }, { passive: true });
+  document.addEventListener("touchend", function (e) {
+    if (touchX === null) { return; }
+    var dx = e.changedTouches[0].clientX - touchX;
+    var dy = e.changedTouches[0].clientY - touchY;
+    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < 0) { next(); } else { prev(); }
+    }
+    touchX = touchY = null;
+  }, { passive: true });
+
+  /* ---------- 初始化：支持 #/3 式页码定位 ---------- */
+  var m = (location.hash || "").match(/^#\/(\d+)/);
+  if (m) { cur = Math.max(0, Math.min(N - 1, parseInt(m[1], 10) - 1)); }
+  shown = frags[cur].length;
+  fit();
+  apply();
+
+  setTimeout(function () {
+    var h = document.getElementById("helpbar");
+    if (h) { h.classList.add("fade"); }
+  }, 4000);
+})();
+
+</script>
+</body>
+</html>

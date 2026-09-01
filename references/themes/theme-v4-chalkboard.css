@@ -1,0 +1,342 @@
+/* ============================================================
+   mdshow theme v4 —— 「墨板讲堂」（Chalkboard Lecture）
+   v4 与 v1/v2/v3 的分野：唯一深色版 + 唯一楷体版。
+   意象：教室黑板——深墨绿板面、粉笔白正文、粉笔黄强调、
+   板书题号（N. 前缀）、黑板四周一圈细粉笔边界线。
+   v1 / v2 / v3 主题原样保留，本文件只服务 v4 演示稿。
+
+   规则溯源（对照《中文 PPT 与网页设计调研笔记》章节）：
+   [1.1]  画布 1280×720 全 token
+   [1.2]  安全边距：上下 36px（5%），左右 64px（5%）
+   [1.4]  字号梯度：页标题 42（40～48 档）/ 小节 30 / 正文 28 / 注释 20
+   [1.4]  字重只用 400/600/700；楷体无真 700 由浏览器合成加粗（中文加粗安全）
+   [3.3]  深色模式的"黑"要加色相：板底 #24352C（带绿相），非纯黑；
+          色数 = 板底(中性) + 粉笔白(文字中性) + 粉笔黄(强调) = 3 色封顶
+   [2.5]  对比度程序实测（scripts/verify/contrast_calc_v45.py）：
+          粉笔白 10.77 / 粉笔黄 7.89 / 辅助灰绿 6.40 / aigc 6.16
+   [3.7]  中文无真斜体 → em/i 着重号（粉笔黄点）
+   [3.7]  避头尾 line-break: strict；word-break: normal
+   [3.7]  字间距只加标题（0.05em，板书字距）
+   [2.7]  楷体系统栈零加载：Kaiti SC(mac) / KaiTi(win) / 霞鹜文楷(Linux)
+   [四]   反 AI slop：非纯黑白（绿相板底/暖白粉笔）、圆角分层（标签 3px/卡片 8px）、
+          标题 text-wrap: balance
+   [1.5]  动效包进 prefers-reduced-motion: no-preference
+   [1.7]  导出：@page 1280×720 + 逐页分页 + fragment 终态兜底 + print-color-adjust
+   ============================================================ */
+
+:root {
+  /* —— 色板：板底 + 粉笔两色（三色封顶 [3.3]，实测见文件头）—— */
+  --board:      #24352C;   /* 深墨绿板面（黑加绿相 [3.3]） */
+  --board-deep: #1C2A22;   /* 代码块底（更深一档） */
+  --chalk:      #ECEAE4;   /* 粉笔白（暖白，非纯白）10.77:1 */
+  --chalk-dim:  #A9BBA9;   /* 辅助灰绿（页码/页脚小字）6.40:1 */
+  --yellow:     #E8C766;   /* 粉笔黄（强调/题号/着重号/列表符）7.89:1 */
+  --aigc-bg:    #36453D;   /* aigc 亮卡（9% 粉笔白合成） */
+  --aigc-fg:    #E8C766;   /* aigc 黄字 6.16:1 */
+  --line:       rgba(236, 234, 228, .28);  /* 粉笔边界线（装饰） */
+  --line-strong: rgba(236, 234, 228, .55); /* 标题下粉笔线（装饰） */
+  --code-fg:    #D8E6D2;   /* 代码字 11.78:1 */
+  --ph-bg:      #2C3E33;   /* 占位卡底 */
+  --ph-fg:      #C9D6A8;   /* 占位卡字（实测 7.0+） */
+
+  /* —— 字号 token [1.4] —— */
+  --fs-title: 42px;
+  --fs-sec:   30px;
+  --fs-body:  28px;
+  --fs-note:  20px;
+
+  /* —— 字重档 [1.4] —— */
+  --w-body: 400;
+  --w-mark: 600;
+  --w-head: 700;
+
+  /* —— 间距 token [2.2] —— */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-6: 24px; --sp-8: 32px; --sp-12: 48px;
+
+  --stage-w: 1280px;
+  --stage-h: 720px;
+  --pad-y: 36px;
+  --pad-x: 64px;
+  --header-h: 112px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+
+body {
+  background: #151B17;     /* 场景暗底（比板面更深，含绿相） */
+  /* 楷体系统栈 [2.7]：板书气质。win=楷体 / mac=Kaiti SC / linux=霞鹜文楷 */
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", 楷体, "LXGW WenKai",
+               "Noto Serif CJK SC", serif;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- 舞台 [1.1] ---------- */
+.viewport {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.stage {
+  width: var(--stage-w); height: var(--stage-h);
+  position: relative; flex: none;
+  background: var(--board);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, .55);
+}
+
+/* ---------- 幻灯片基体 ---------- */
+.slide {
+  position: absolute; inset: 0;
+  background: var(--board);
+  display: none; flex-direction: column;
+  overflow: hidden;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.slide.active { display: flex; }
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+
+/* 板面边界：黑板四周一圈细粉笔线（v4 视觉签名） */
+.slide::before {
+  content: ""; position: absolute; inset: 16px;
+  border: 1.5px solid var(--line);
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+/* ---------- 内容页：板书标题 ---------- */
+.slide-header {
+  flex: none; height: var(--header-h); padding: 0 var(--pad-x);
+  display: flex; align-items: flex-end;
+  padding-bottom: 16px;
+  position: relative;
+}
+.slide-header::after {                   /* 标题下粉笔主线 + 细随线 */
+  content: ""; position: absolute; left: var(--pad-x); right: var(--pad-x);
+  bottom: 0; height: 5px;
+  border-top: 2px solid var(--line-strong);
+  border-bottom: 1px dashed var(--line);
+}
+.slide-header h2 {
+  color: var(--chalk);
+  font-size: var(--fs-title); font-weight: var(--w-head);
+  line-height: 1.3;                      /* [1.4] 标题行高 1.15～1.3 */
+  letter-spacing: .05em;                 /* [3.7] 字间距只加标题（板书字距） */
+  text-wrap: balance;
+}
+.slide-header h2::before {               /* 板书题号：N. （粉笔黄） */
+  content: attr(data-sec) ". ";
+  color: var(--yellow);
+  font-weight: var(--w-head);
+}
+
+.slide-body {
+  flex: 1; padding: var(--sp-6) var(--pad-x) var(--pad-y);
+  font-size: var(--fs-body); font-weight: var(--w-body);
+  line-height: 1.7;                      /* [2.8雷10] 中文正文 1.7～1.8 */
+  color: var(--chalk);
+  overflow: hidden;
+  word-break: normal;
+  overflow-wrap: break-word;
+  line-break: strict;
+}
+
+/* ---------- 正文元素 ---------- */
+.slide-body h2.sec {
+  font-size: var(--fs-sec); font-weight: var(--w-head);
+  line-height: 1.3; color: var(--chalk);
+  margin: 0 0 var(--sp-3);
+  text-wrap: balance;
+}
+.slide-body h2.sec::before { content: "§ "; color: var(--yellow); }
+.slide-body h2.sec:not(:first-child) { margin-top: var(--sp-8); }
+
+.slide-body p { margin: 0 0 var(--sp-4); text-wrap: pretty; }
+.slide-body h3 {
+  font-size: var(--fs-sec); color: var(--chalk);
+  margin: 0 0 var(--sp-4);
+}
+
+/* [3.7] 中文禁伪斜体：em/i 改粉笔黄着重号 */
+.slide-body em, .slide-body i {
+  font-style: normal;
+  text-emphasis: filled dot var(--yellow);
+  text-emphasis-position: under right;
+}
+
+/* 板书列表：粉笔黄短杠符号；标准 list-item 布局（marker 不漂移，v3 教训） */
+.slide-body ul {
+  padding-left: 1.4em;
+  list-style: none;
+}
+.slide-body li { line-height: 1.7; text-wrap: pretty; position: relative; }
+.slide-body li + li { margin-top: var(--sp-2); }
+.slide-body li::before {
+  content: "";
+  position: absolute; left: -1.1em; top: .72em;
+  width: .58em; height: 3px;
+  background: var(--yellow);
+  border-radius: 2px;
+}
+.slide-body ul ul {
+  margin-top: var(--sp-1);
+  padding-left: 1.2em;
+}
+.slide-body ul ul li::before {
+  width: .5em; height: 2px;
+  background: var(--line-strong);
+}
+
+a { color: var(--yellow); text-decoration: underline; text-underline-offset: .14em; }
+code {
+  background: var(--board-deep); border: 1px solid var(--line); border-radius: 3px;
+  padding: .05em .35em; font-size: .82em; color: var(--code-fg);
+  font-family: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+/* ---------- ✦ AIGC 水印卡：黑板亮卡 + 粉笔黄字（语义与 v1/v2/v3 一致）
+   display:inline——inline-block 基线=内部末行基线会把 marker 拉到卡片第二行（v3 已证） */
+.aigc {
+  display: inline;
+  background: var(--aigc-bg);
+  color: var(--aigc-fg);
+  padding: .1em .4em; border-radius: 3px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  font-weight: var(--w-mark);
+}
+.aigc::before { content: "✦ "; color: var(--yellow); }
+p.callout { margin: var(--sp-4) 0 0 2px; }
+li.callout-item::before { width: .58em; }
+
+/* ---------- [[...]] 图片占位卡 ---------- */
+.imgph {
+  margin: var(--sp-4) 0;
+  padding: var(--sp-4) var(--sp-6);
+  border: 2px dashed var(--line-strong);
+  background: var(--ph-bg);
+  color: var(--ph-fg);
+  border-radius: 8px;
+  display: inline-flex; align-items: center; gap: var(--sp-3);
+  font-size: var(--fs-note); line-height: 1.5;
+  max-width: 100%;
+}
+.ph-ico {
+  width: 30px; height: 24px; flex: none;
+  border: 2px solid var(--chalk-dim); border-radius: 3px;
+  position: relative; overflow: hidden; background: var(--board-deep);
+}
+.ph-ico::before {
+  content: ""; position: absolute; left: 3px; top: 12px;
+  border-left: 6px solid transparent; border-right: 6px solid transparent;
+  border-bottom: 9px solid var(--chalk-dim);
+}
+.ph-ico::after {
+  content: ""; position: absolute; right: 4px; top: 4px;
+  width: 5px; height: 5px; border-radius: 50%; background: var(--chalk-dim);
+}
+span.ph {
+  display: inline;
+  border: 1.5px dashed var(--line-strong); border-radius: 3px;
+  background: var(--ph-bg); color: var(--ph-fg);
+  padding: 0 .3em; font-size: .92em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* ---------- 数学（拉丁惯例斜体，非中文伪斜体） ---------- */
+.math {
+  font-family: Georgia, "Times New Roman", "Noto Serif SC", serif;
+  font-style: italic;
+  white-space: nowrap;
+}
+.math.math-d { display: inline-block; padding: 0 var(--sp-1); }
+.math-display {
+  font-family: Georgia, "Times New Roman", "Noto Serif SC", serif;
+  font-style: italic;
+  font-size: var(--fs-sec);
+  text-align: center;
+  margin: var(--sp-4) 0;
+  color: var(--chalk);
+}
+
+/* ---------- 封面 / 封底（方言 A 备用）：整面板书标题 ---------- */
+.slide.cover {
+  background: var(--board);
+  align-items: center; justify-content: center; text-align: center;
+}
+.cover h1 {
+  color: var(--chalk); font-size: 72px; font-weight: var(--w-head);
+  line-height: 1.2; letter-spacing: .08em; margin-bottom: var(--sp-4);
+  text-wrap: balance;
+}
+.cover .cover-sub { color: var(--chalk-dim); font-size: var(--fs-body); letter-spacing: .12em; }
+.cover::after {
+  content: "❖"; position: absolute; left: 50%; bottom: 58px;
+  transform: translateX(-50%);
+  font-size: 30px; color: var(--yellow); line-height: 1;
+  pointer-events: none;
+}
+.cover .pageno { display: none; }
+
+/* ---------- 页码：右下角粉笔小字（v1/v2 位式，注释级 20px） ---------- */
+.pageno {
+  position: absolute; right: 22px; bottom: 24px;
+  font-size: var(--fs-note); line-height: 1.5;
+  color: var(--chalk-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 分步显示 [1.5] ---------- */
+.fragment { opacity: 0; transform: translateY(6px); }
+.fragment.shown { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .slide.active { animation: fadein .18s ease; }
+  .fragment { transition: opacity .25s ease, transform .25s ease; }
+}
+
+/* ---------- 总览模式（O） ---------- */
+body.overview { background: #151B17; }
+.overview .stage {
+  position: static; width: auto; height: auto;
+  box-shadow: none; background: transparent;
+  display: block;
+}
+.overview .slide {
+  display: block !important;
+  transform-origin: 0 0;
+  cursor: pointer;
+  border-radius: 3px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .55);
+  outline: 3px solid transparent;
+}
+.overview .slide.current { outline-color: var(--yellow); }
+.overview .fragment { opacity: 1 !important; transform: none !important; }
+
+/* ---------- 操作提示条 ---------- */
+.helpbar {
+  position: fixed; left: 14px; bottom: 12px; z-index: 50;
+  color: rgba(236, 234, 228, .9); font-size: 14px;
+  background: rgba(0, 0, 0, .6); padding: 6px 12px; border-radius: 20px;
+  pointer-events: none; transition: opacity .8s;
+}
+.helpbar.fade { opacity: 0; }
+
+/* ---------- 打印 / 导出 PDF [1.7] ---------- */
+@page { size: 1280px 720px; margin: 0; }
+@media print {
+  body { background: #fff; overflow: visible; }
+  .viewport { position: static; display: block; }
+  .stage { transform: none !important; width: auto; height: auto; box-shadow: none; }
+  .slide {
+    display: flex !important; position: relative;
+    width: var(--stage-w); height: var(--stage-h);
+    break-after: page; page-break-after: always;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .slide:last-child { break-after: auto; page-break-after: auto; }
+  .fragment { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .slide { animation: none !important; }
+  .helpbar { display: none; }
+}
