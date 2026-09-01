@@ -38,8 +38,10 @@ python3 engine/buildall 讲稿.md -o slides.html --theme <skill>/references/them
 | 封面 | 文档第一个 `# 一级标题` | 第一页即封面 |
 | 渐进显示 | 列表项 = 分步元素 | 同左（`*`/`-` 逐项出现） |
 
-行内语法：`**粗体**`、`*着重*`（主题渲染为着重号，不用伪斜体）、`` `行内码` ``、`[链接](url)`、
+行内语法：`**粗体**`、`*着重*`（主题渲染为着重号，不用伪斜体）、`` `行内码` ``、`~~删除线~~`、
+`[链接](url)`、`$数学$`（命令映射 + 上下标 + 词性分明排版：单字母变量斜体、函数名正体，见 dialect-syntax.md）、
 `<span class="aigc">AI 扩写内容</span>`（AIGC 水印）、`[[图片说明]]`（渲染为虚线占位卡，提醒补图）。
+`> 文本` 是**引用块**容器（可含 aigc span），本身不带水印——与列表内 `- > ` 水印卡语义不同。
 
 ## 五主题 × 五色系（决策树）
 
@@ -99,6 +101,7 @@ mdshow-slides/
 │   ├── design-system.md            # 设计规范 + 五主题风格档案（选主题/写样式时读）
 │   ├── university-palettes.md      # 五色系 × 大学官方色值 × token 映射（换色时读）
 │   ├── engine-internals.md         # 引擎机制、验证清单、已知陷阱（排障时读）
+│   ├── lessons-learned.md          # ★ 实战踩坑录（做长稿/高密度稿前必读）
 │   └── themes/                     # ★ 五套主题模板 CSS（构建 --theme 的取材处）
 └── assets/
     ├── engine/                     # ★ 放映引擎（纯 Python + runtime.js，拷走即用）

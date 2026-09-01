@@ -205,21 +205,32 @@ span.ph {
   padding: 0 .3em; font-size: .92em;
 }
 
-/* ---------- 展示数学（拉丁数学惯例用斜体，不属中文伪斜体） ---------- */
+/* ---------- 数学排版（ISO 80000 / LaTeX 惯例，非整体斜体） ----------
+   容器绝不整体 italic——那是"英文斜了一遍"的刻意感来源。
+   引擎已按词性输出标签：单字母变量 <var>、函数名/标识符裸文本、
+   数字与运算符裸文本。字体用衬线体呼应数学教科书观感，
+   字号 +5% 补偿 serif 偏小的 x-height，使其与 sans 正文视觉等大。 */
 .math {
-  font-family: Georgia, "Times New Roman", "Noto Serif SC", serif;
-  font-style: italic;
+  font-family: "Times New Roman", Georgia, "Noto Serif SC", serif;
+  font-size: 1.05em;
   white-space: nowrap;
 }
+.math var {
+  font-style: italic;               /* 数学变量：斜体衬线 */
+  font-family: inherit;
+  font-weight: inherit;
+  padding-right: .03em;             /* 斜体字母不贴住后一字符 */
+}
+.math sub, .math sup { font-size: .68em; }
 .math.math-d { display: inline-block; padding: 0 var(--sp-1); }
 .math-display {
-  font-family: Georgia, "Times New Roman", "Noto Serif SC", serif;
-  font-style: italic;
-  font-size: var(--fs-sec);
+  font-family: "Times New Roman", Georgia, "Noto Serif SC", serif;
+  font-size: calc(var(--fs-sec) * 1.06);
   text-align: center;
   margin: var(--sp-4) 0;
   color: var(--ink-strong);
 }
+.math-display var { font-style: italic; padding-right: .03em; }
 
 /* ---------- 封面 / 封底（方言 A 备用）[1.4] 封面主标题 72～96 → 76px ---------- */
 .slide.cover {

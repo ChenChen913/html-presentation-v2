@@ -128,7 +128,7 @@ git clone https://github.com/ChenChen913/html-presentation-v2.git .agents/skills
 Then just tell your agent: "**use mdshow-slides to turn this lecture into slides**". Inside the skill:
 
 - `SKILL.md` — main flow: pick a theme, recolor, authoring rules, build commands (~100 lines, deliberately lean)
-- `references/` — full syntax / content workflow / design system / university colors / engine pitfalls / five theme templates
+- `references/` — full syntax / content workflow / design system / university colors / engine pitfalls / field notes / five theme templates
 - `assets/` — presentation engine / palette snippets / demo lectures / five showcase decks
 
 ## Repository Layout
@@ -145,6 +145,7 @@ html-presentation-v2/
 │   ├── design-system.md            #   design rules + five theme profiles
 │   ├── university-palettes.md      #   five color systems × official university colors
 │   ├── engine-internals.md         #   engine internals / verification checklist / known pitfalls
+│   ├── lessons-learned.md         #   field notes from real builds (must-read for long decks)
 │   └── themes/                     # ★ five theme template CSS files
 └── assets/
     ├── engine/                     # ★ presentation engine (pure Python + runtime.js)

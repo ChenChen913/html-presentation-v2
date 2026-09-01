@@ -128,7 +128,7 @@ git clone https://github.com/ChenChen913/html-presentation-v2.git .agents/skills
 之后对智能体说"**用 mdshow-slides 给这个讲稿做一个幻灯片**"即可。技能内部约定：
 
 - `SKILL.md` —— 主流程：选主题、换色系、写稿规则、构建命令（约百行，刻意精简）
-- `references/` —— 语法全表 / 内容生成工作流 / 设计系统 / 高校色值 / 引擎陷阱手册 / 五主题模板
+- `references/` —— 语法全表 / 内容生成工作流 / 设计系统 / 高校色值 / 引擎陷阱手册 / 实战踩坑录 / 五主题模板
 - `assets/` —— 放映引擎 / 五色系片段 / 示例讲稿 / 五个成品 showcase
 
 ## 目录结构
@@ -145,6 +145,7 @@ html-presentation-v2/
 │   ├── design-system.md            #   设计规范 + 五主题风格档案
 │   ├── university-palettes.md      #   五色系 × 大学官方色值
 │   ├── engine-internals.md         #   引擎机制 / 验证清单 / 已知陷阱
+│   ├── lessons-learned.md          #   ★ 实战踩坑录（长稿/高密度稿必读）
 │   └── themes/                     # ★ 五套主题模板 CSS
 └── assets/
     ├── engine/                     # ★ 放映引擎（纯 Python + runtime.js）

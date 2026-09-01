@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
+r"""
 mdshow :: slideshow.parser
 把 Markdown 讲稿解析成幻灯片模型（Slide / Block）。
 
@@ -11,7 +11,7 @@ mdshow :: slideshow.parser
   ### 文本      -> 正文粗体小节句
   - 文本        -> 圆点列表项（默认分步显示，行尾 {nf} 关闭分步）
   - > 文本      -> 列表内 AIGC 卡（✦ 淡紫水印，等价于手写 <span class="aigc">）
-  > 文本        -> 独立 AIGC 卡
+  > 文本        -> 引用块（大引号 + 左竖线容器；内部可含 aigc span）
   [[描述]]      -> 图片占位卡（构建时输出警告，提醒补图）
 
 方言 B（make-slides 技能产物，规范见 .agents/skills/make-slides/SKILL.md）：
@@ -21,12 +21,90 @@ mdshow :: slideshow.parser
   - 文本        -> 圆点列表项
   ␠␠- 文本      -> 嵌套列表（缩进 ≥2 空格，随父项一同显示）
   <span class="aigc">文本</span> -> AI 生成水印（✦ 淡紫高亮，行内透传）
+  > 文本        -> 引用块（多行连续 > 合并为同一块；内部 aigc span 照常透传）
 
 通用行内语法：
-  [文字](url) 链接 / **粗体** / *斜体* / `代码`
-  $...$ 行内数学 / $$...$$ 展示数学（轻量排版，非完整 TeX）
+  [文字](url) 链接 / **粗体** / *着重* / `代码` / ~~删除~~
+  $...$ 行内数学 / $$...$$ 展示数学（轻量 TeX：命令映射 + ^{} _{} 上下标，
+  支持 \mid \prod \sum \forall \approx \neq \times 等，非完整 TeX）
 """
 import re
+
+
+# 数学命令 -> Unicode 映射（长命令优先替换，避免 \in 吃掉 \infty）
+# 注：\mid 用普通竖线 | 而非 U+2223 ∣——后者在 Times/Georgia 中缺字形，
+# 浏览器回退渲染后观感近似斜杠（jyy 复刻实战教训）
+MATH_CMD_MAP = {
+    "\\mid": "|", "\\prod": "∏", "\\sum": "∑", "\\forall": "∀",
+    "\\infty": "∞", "\\times": "×", "\\approx": "≈", "\\neq": "≠",
+    "\\leq": "≤", "\\geq": "≥", "\\ldots": "…", "\\cdots": "⋯",
+    "\\cup": "∪", "\\cap": "∩", "\\rightarrow": "→", "\\to": "→",
+    "\\in": "∈", "\\%": "%",
+}
+
+
+# 拆开 sub/sup 标签，让标签内文本（下标变量）也走变量斜体规则
+_TAG_SPLIT_RE = re.compile(r"(<(?:sub|sup)>[^<]*</(?:sub|sup)>)")
+# 连续字母串：单字母 → 变量，多字母 → 标识符/函数名（保持正体）
+_WORD_RE = re.compile(r"[A-Za-z]+")
+# 紧贴字母数字/括号的竖线（| 无空格一侧补薄空格，留出条件竖线的气口）
+# 左右两条独立规则；在上下标转换前执行（纯文本阶段），故前邻需含 }
+_BAR_L_RE = re.compile(r"([A-Za-z0-9\)}])\|")
+_BAR_R_RE = re.compile(r"\|([A-Za-z0-9\(\[{])")
+# 薄空格（U+2009）：比普通空格窄，模拟 LaTeX 关系符间距
+_THIN = "\u2009"
+
+
+def _wrap_single_vars(text):
+    """ISO 80000 / LaTeX 惯例：单字母变量斜体，多字母标识符正体。
+
+    用 <var> 而非 <i>：v2 主题把 .slide-body i/em 映射为中文着重号
+    （text-emphasis），数学里若用 <i> 会带着重号点，冲突。
+    特例：O( 的大 O 是记号不是变量，保持正体。
+    """
+    text = text.replace("O(", "\x01(")          # 保护大 O 记号
+    text = _WORD_RE.sub(
+        lambda m: "<var>%s</var>" % m.group(0) if len(m.group(0)) == 1 else m.group(0),
+        text)
+    return text.replace("\x01(", "O(")
+
+
+def render_math(expr):
+    r"""轻量数学渲染：命令映射 + 上下标 + 变量斜体/标识符正体。
+
+    输入已经过 esc()，此处插入的 <sub>/<sup>/<var> 标签是安全的。
+    设计动机：jyy 原版 tu13 曾因未渲染的 LaTeX 源码裸露而翻车
+    （“$P(x_{1:n}\mid c)=\prod_i...” 直接印在幻灯片上），本函数保证
+    常用命令都能落到可读的 Unicode/HTML 上。
+
+    v2 排版规则（修复“整体斜体像加粗英文”的刻意感）：
+      - 单字母（x, n, c, s...）→ <var> 斜体，即数学变量惯例；
+      - 多字母（Pr, token, concat, Base64...）保持正体，即函数名/标识符惯例；
+      - 数字/运算符正体；条件竖线两侧补薄空格。
+    """
+    for cmd in sorted(MATH_CMD_MAP, key=len, reverse=True):
+        expr = expr.replace(cmd, MATH_CMD_MAP[cmd])
+    # 竖线气口：趁纯文本阶段先做（转出 sub/sup 标签后就难判断跨标签紧贴了）；
+    # 哪侧无空格补哪侧，已有空格则不动
+    expr = _BAR_L_RE.sub(r"\1" + _THIN + "|", expr)
+    expr = _BAR_R_RE.sub("|" + _THIN + r"\1", expr)
+    expr = re.sub(r"_\{([^}]+)\}", r"<sub>\1</sub>", expr)
+    expr = re.sub(r"\^\{([^}]+)\}", r"<sup>\1</sup>", expr)
+    expr = re.sub(r"_([A-Za-z0-9])", r"<sub>\1</sub>", expr)
+    expr = re.sub(r"\^([A-Za-z0-9])", r"<sup>\1</sup>", expr)
+    # 分段处理：sub/sup 标签内文本也做变量斜体，标签外再做竖线气口
+    parts = _TAG_SPLIT_RE.split(expr)
+    for i, p in enumerate(parts):
+        if not p:
+            continue
+        if p.startswith("<"):
+            m = re.match(r"<(sub|sup)>(.*)</(?:sub|sup)>$", p, re.S)
+            if m:
+                parts[i] = "<%s>%s</%s>" % (
+                    m.group(1), _wrap_single_vars(m.group(2)), m.group(1))
+        else:
+            parts[i] = _wrap_single_vars(p)
+    return "".join(parts)
 
 
 class Block:
@@ -47,7 +125,11 @@ class Slide:
 
 PLACEHOLDER_RE = re.compile(r"\[\[([^\[\]]+)\]\]")
 NF_MARKER_RE = re.compile(r"\s*\{nf\}\s*$")
-AIGC_TAG_RE = re.compile(r'<span\s+class="aigc"\s*>|</span\s*>', re.IGNORECASE)
+# 白名单透传：aigc 开闭标签 + 数学/公式常用上下标标签（严格字面匹配）
+AIGC_TAG_RE = re.compile(
+    r'<span\s+class="aigc"\s*>|</span\s*>|<sub>|</sub>|<sup>|</sup>',
+    re.IGNORECASE,
+)
 MATH_DISP_RE = re.compile(r"\$\$([^$\n]+)\$\$")
 MATH_INLINE_RE = re.compile(r"\$([^$\n]+)\$")
 ITEM_RE = re.compile(r"^(?:-|•)\s+(.*)$")
@@ -76,10 +158,13 @@ def parse_inline(text):
     t = re.sub(r"\[([^\]]+)\]\(([^)\s]+)\)", r'<a href="\2">\1</a>', t)
     t = re.sub(r"\*\*([^*]+)\*\*", r"<b>\1</b>", t)
     t = re.sub(r"(?<!\*)\*([^*\n]+)\*(?!\*)", r"<i>\1</i>", t)
+    t = re.sub(r"~~([^~]+)~~", r"<del>\1</del>", t)
     t = re.sub(r"`([^`]+)`", r"<code>\1</code>", t)
     # 数学（先展示式后行内式，避免 $$ 被行内规则吃掉一半）
-    t = MATH_DISP_RE.sub(r'<span class="math math-d">\1</span>', t)
-    t = MATH_INLINE_RE.sub(r'<span class="math">\1</span>', t)
+    t = MATH_DISP_RE.sub(
+        lambda m: '<span class="math math-d">' + render_math(m.group(1)) + "</span>", t)
+    t = MATH_INLINE_RE.sub(
+        lambda m: '<span class="math">' + render_math(m.group(1)) + "</span>", t)
     # 行内图片占位符（整行 [[...]] 会在块级被先截获为占位卡）
     t = PLACEHOLDER_RE.sub(r'<span class="ph">\1</span>', t)
     return t
@@ -177,11 +262,18 @@ def parse(md_text):
             prev_is_para = False
             continue
 
-        # ---- AIGC 卡（独立） ----
-        if s.startswith("> "):
-            b = Block("quote")
-            b.text = parse_inline(s[2:])
-            cur.blocks.append(b)
+        # ---- 引用块（`>` 容器语义：借鉴 jyy 原版——引用是容器，
+        #      AIGC 标记由内部 span 负责，两者正交；连续行合并为同一块） ----
+        if s.startswith("> ") or s == ">":
+            ensure_slide()
+            body = s[2:] if len(s) > 1 else ""
+            seg = parse_inline(body)
+            if cur.blocks and cur.blocks[-1].kind == "quote":
+                cur.blocks[-1].text += seg     # 连续引用行：中文直排拼接
+            else:
+                b = Block("quote")
+                b.text = seg
+                cur.blocks.append(b)
             prev_is_para = False
             continue
 
@@ -233,12 +325,10 @@ def ensure_slide_para(prev_is_para, cur, s):
 
 
 def count_fragments(slides):
-    """统计分步元素个数（构建摘要用）"""
+    """统计分步元素个数（构建摘要用）。引用块随页直接显示，不计分步。"""
     n = 0
     for s in slides:
         for b in s.blocks:
             if b.kind == "ul":
                 n += sum(1 for it in b.items if it["frag"])
-            elif b.kind == "quote":
-                n += 1
     return n
