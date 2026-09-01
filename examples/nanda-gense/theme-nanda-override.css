@@ -21,7 +21,8 @@
 }
 
 /* 2) 引用块：借鉴原版长处（大引号装饰 + 左竖线 + 浅底），
-      用紫檀色系重绘；内部 aigc span 水印语义不受容器影响。 */
+      用紫檀色系重绘；内部 aigc span 水印语义不受容器影响。
+      2026-09 用户反馈：字号缩一档（.92em）——金句与正文拉开层级、更克制； */
 blockquote.quote {
   position: relative;
   margin: var(--sp-4) 0;
@@ -30,6 +31,7 @@ blockquote.quote {
   border-left: 4px solid var(--purple-500);
   border-radius: 0 10px 10px 0;      /* [四] 卡片级圆角 */
   line-height: 1.6;
+  font-size: .92em;
 }
 blockquote.quote::before {
   content: "\201C";
@@ -38,8 +40,9 @@ blockquote.quote::before {
   font-size: 52px; line-height: 1;
   color: var(--dash);
 }
-/* 引用块内的 aigc 卡背景与块底色拉开一档 */
-blockquote.quote .aigc { background: #EAE3F6; }
+/* 引用块内的 aigc 卡降噪（2026-09 用户反馈）：原紫底紫字叠在引用块浅紫底上，
+   多层紫色观感似“文字彩色阴影”——去底色、回归墨色，仅保留 ✦ 前缀标识 AI 生成 */
+blockquote.quote .aigc { background: transparent; color: inherit; }
 
 /* 3) 删除线：灰色弱化，表示"已过时/自嘲"语义 */
 del {

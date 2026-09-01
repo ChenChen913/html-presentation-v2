@@ -118,3 +118,21 @@ recipe 行首是 8 个空格时 make 报 "missing separator"。生成 Makefile �
   scripts/verify_dialect.py 25 项 Playwright 断言（含逐页溢出、表格对齐、
   marker 颜色、::before 任务符号、图片加载与限高）；五主题全部补齐新元素样式
   （v2 完整版，v1/v3/v4/v5 基础款；v4/v5 线条式列表需显式关闭 ol li::before）。
+## 附二：展示数学管线断接修复（2026-09 第四轮 · 用户报障驱动）
+
+- **故障**：`examples/dialect-test/` 第 8 页行内公式渲染正常，独立一行的
+  `$$P(x_{1:n} \mid c)=\prod_{i=1}^{n}...$$` 却整行裸奔源码——同页两种命运。
+- **根因**：parse() 的 mathd 分支误用 parse_inline：`$$` 定界符在 fullmatch 时
+  已被剥掉，而 parse_inline 内的数学规则（MATH_DISP_RE/MATH_INLINE_RE）按 `$`
+  定界匹配，对新内容永远不命中 → 文本仅 esc 未渲染，原样进入
+  `<div class="math-display">`。
+- **修复**：`b.text = render_math(esc(m.group(1)))`——展示块语义即纯数学，
+  直接走数学管线，不再借道通用行内解析。
+- **为何三轮验证没抓到**：mathd 相关断言只查"节点存在"（mathd 块数、
+  .math-display 是否出现），从未断言输出内容质量；测试稿里有 `$$...$$` 语法，
+  引擎级测试（test_dialect_full.py）却没有对应条目——**语法写了 ≠ 测了**。
+- **防线补齐**：test_dialect_full.py 新增 8b 组（mathd 块生成 / 内容含
+  `<var>/<sub>/∏` / 无裸 `\mid _{ \prod` / 行中 `$$...$$` 走 math-d 路径回归），
+  全格式引擎断言 35 → 39 项。
+- **同页排障指纹**：一种样式好、一种坏 = 两条渲染管线不等价，先比对两条管线
+  对同一内容的处理路径，再逐级打印中间产物。
