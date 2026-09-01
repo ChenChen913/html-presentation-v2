@@ -159,7 +159,6 @@ html-presentation-v2/
 `make-slides` 技能工作流启发：讲稿是唯一事实源（source of truth），幻灯片是构建产物；
 AI 扩写的内容一律用 `.aigc` 水印如实标记。向 jyy 老师开源分享这一工作流致敬。
 
-- jyy 主页：<https://jyy.website/>
 - 本仓库中 v1 主题即对其课堂幻灯片风格的 1:1 复刻，仅作学习交流用途。
 
 ## 开源许可

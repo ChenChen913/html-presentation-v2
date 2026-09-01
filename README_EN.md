@@ -160,7 +160,6 @@ This workflow is inspired by the course slides of **Prof. Jiang Yan-Yan (jyy) at
 the lecture notes are the single source of truth, slides are build artifacts, and everything
 AI-expanded is honestly marked with an `.aigc` watermark. Hats off to jyy for open-sourcing this workflow.
 
-- jyy's homepage: <https://jyy.website/>
 - Theme v1 in this repo is a 1:1 replica of his lecture-deck style, for learning purposes only.
 
 ## License
