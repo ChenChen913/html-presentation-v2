@@ -41,6 +41,9 @@
 5. **reduced-motion**：`page.emulate_media(reduced_motion="reduce")` 前后动画态双断言。
 6. **打印**：emulate media "print" 后 `@page` 尺寸与色彩保留。
 7. **交互冒烟**：方向键翻页页码 +1、O 键总览网格齐全。
+8. **数学块不裸奔**：所有 `$$...$$` 页目检 `.math-display` 元素——内部文本不含
+   `\`、`_{`、`^{`、`\frac` 等裸 LaTeX；浏览器 `getComputedStyle(.math-display).textContent`
+   可脚本校验（diff 源稿：剥掉 `\\mid`、`\\prod` 等已知映射后还出现 `\` 即裸奔）。
 
 ## 五、已知陷阱（每条都真实踩过，勿再踩）
 
@@ -74,6 +77,18 @@ recipe 行首是 8 个空格时 make 报 "missing separator"。生成 Makefile �
 ### 5.7 图片占位符不是图片
 `[[...]]` 只渲染占位卡；真实图片应替换为 Markdown 图片语法或 base64 内联（jyy 的 make-slides
 约定：栅格图 embed base64 webp、downscale 到 720p；信息图优先用代码画——中文字符、白底、最强模型）。
+
+### 5.8 展示数学块 `$$...$$` 不可借道 parse_inline（2026-09 dialect-test 翻车）
+`mathd` 块的内部文本已剥掉 `$$` 定界符，再丢给 `parse_inline` 会让
+`MATH_DISP_RE` / `MATH_INLINE_RE` 同时失配，**整行 LaTeX 原样转义输出**——
+比"公式不渲染"更糟，因为它**不报错**。
+
+修法是显式分流：parser 里 `mathd` 分支必须直接 `b.text = render_math(esc(m.group(1).strip()))`，
+跳过 parse_inline 的全部规则链。规则："块级触发后还想偷懒复用行内函数"几乎必踩——
+行内函数的正则匹配的是**含定界符的源码**，剥了定界符就是另一个东西了。
+
+对每加一个块级语法分支都要问：内部文本还会带原定界符吗？若不会，渲染路径
+必须独立，不能借道行内解析器。
 
 ## 六、二次开发指引
 

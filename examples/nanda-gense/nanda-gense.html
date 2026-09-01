@@ -310,6 +310,18 @@ span.ph {
 }
 .math-display var { font-style: italic; padding-right: .03em; }
 
+/* ---------- 引用块 [3.7]（v2 最小基线：缩字号 + 抑 aigc 高亮） ----------
+   容器装饰（浅底 / 左竖线 / 大引号）由各主题按需 override；
+   基线只保证：a) 引言字号比正文小一档；b) 块内 aigc 不再叠紫底。
+   背景/边框省略，保留到 nju-replica / 紫檀·南大复刻等具体主题覆盖。 */
+blockquote.quote {
+  font-size: .92em;                 /* [1.4] 引言比正文小一档（相对值随字号 token 缩放） */
+  line-height: 1.6;
+  margin: var(--sp-3) 0;
+}
+/* 引用块内的 aigc：去掉彩色底色，保留 ✦ 与紫色字（容器已暗示摘录） */
+blockquote.quote .aigc { background: transparent; }
+
 /* ---------- 封面 / 封底（方言 A 备用）[1.4] 封面主标题 72～96 → 76px ---------- */
 .slide.cover {
   background: linear-gradient(135deg, #443B70 0%, #6B60A5 55%, #9488C8 100%);
@@ -409,8 +421,9 @@ body.overview { background: #1B1A20; }
 }
 
 /* 2) 引用块：借鉴原版长处（大引号装饰 + 左竖线 + 浅底），
-      用紫檀色系重绘；内部 aigc span 水印语义不受容器影响。
-      2026-09 用户反馈：字号缩一档（.92em）——金句与正文拉开层级、更克制； */
+      用紫檀色系重绘。字号基线与 aigc 去底在 v2 主题本体（.92em）；
+      此处按用户反馈（2026-09）进一步墨色化：去底后不再保留紫色字——
+      "不用加文字彩色阴影"，容器语境 + ✦ 前缀已足够标识 AI 生成。 */
 blockquote.quote {
   position: relative;
   margin: var(--sp-4) 0;
@@ -419,7 +432,6 @@ blockquote.quote {
   border-left: 4px solid var(--purple-500);
   border-radius: 0 10px 10px 0;      /* [四] 卡片级圆角 */
   line-height: 1.6;
-  font-size: .92em;
 }
 blockquote.quote::before {
   content: "\201C";
@@ -428,9 +440,9 @@ blockquote.quote::before {
   font-size: 52px; line-height: 1;
   color: var(--dash);
 }
-/* 引用块内的 aigc 卡降噪（2026-09 用户反馈）：原紫底紫字叠在引用块浅紫底上，
-   多层紫色观感似“文字彩色阴影”——去底色、回归墨色，仅保留 ✦ 前缀标识 AI 生成 */
-blockquote.quote .aigc { background: transparent; color: inherit; }
+/* 引用块内的 aigc：底色已在 v2 本体去除（仅留 ✦ 前缀与字重），
+   此处再收敛字色为墨色（2026-09 用户反馈：不用文字彩色） */
+blockquote.quote .aigc { color: inherit; }
 
 /* 3) 删除线：灰色弱化，表示"已过时/自嘲"语义 */
 del {

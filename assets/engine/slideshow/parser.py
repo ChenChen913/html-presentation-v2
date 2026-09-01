@@ -401,14 +401,14 @@ def parse(md_text):
             continue
 
         # ---- 展示数学（独立一行 $$...$$） ----
-        # 2026-09 修复：曾误用 parse_inline——进入前 $$ 定界符已被剥掉，
-        # 而 parse_inline 的数学规则按 $ 定界匹配，永远无法命中，
-        # 结果 LaTeX 源码（_{1:n}、\prod 等）原样裸奔（A4 事故的管线版）。
-        # 展示块语义就是纯数学：esc + render_math 全管线渲染。
+# 2026-09 修复：曾误用 parse_inline——进入前 $$ 定界符已被剥掉，
+# 而 parse_inline 的数学规则按 $ 定界匹配，永远无法命中，
+# 结果 LaTeX 源码（_{1:n}、\prod 等）原样裸奔（A4 事故的管线版）。
+# 展示块语义就是纯数学：esc + render_math 全管线渲染（strip 防尾随空白）。
         m = re.fullmatch(r"\$\$(.+)\$\$", s)
         if m:
             b = Block("mathd")
-            b.text = render_math(esc(m.group(1)))
+            b.text = render_math(esc(m.group(1).strip()))
             cur.blocks.append(b)
             prev_is_para = False
             continue

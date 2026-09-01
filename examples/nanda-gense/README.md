@@ -22,7 +22,14 @@
 
 ## 重建
 
+合成主题 → 构建 HTML（两步缺一不可，详见 lessons-learned.md A11）：
+
 ```bash
+# 第一步：合成主题 = v2 本体 + override（同名选择器后者生效）
+cat references/themes/theme-v2-zitan.css examples/nanda-gense/theme-nanda-override.css \
+  > examples/nanda-gense/theme-v2-nanda.css
+
+# 第二步：构建产物
 python3 assets/engine/buildall examples/nanda-gense/nanda-gense.md \
   -o examples/nanda-gense/nanda-gense.html \
   --theme examples/nanda-gense/theme-v2-nanda.css
@@ -30,3 +37,4 @@ python3 assets/engine/buildall examples/nanda-gense/nanda-gense.md \
 
 > 源稿中 `[[...]]` 图片占位符为刻意保留（对应原版课件截图位置），
 > 构建时的警告属预期行为。
+> 修改 `theme-nanda-override.css` 后必须先跑第一步再跑第二步，否则产物里藏旧版本。
